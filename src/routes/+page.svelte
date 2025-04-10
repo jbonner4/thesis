@@ -103,19 +103,20 @@
     }
   
     .stories {
-      overflow-y: auto;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 1rem;
-      border-radius: 8px;
-      flex: 1;
+        width: 25%; /* take up 1/4 of the screen */
+        height: 100%;
+        overflow-y: auto;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1rem;
+        border-left: 1px solid #ccc;
     }
-  
+
     .story-card {
-      margin-bottom: 1.5rem;
-      padding: 1rem;
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
   </style>
   
