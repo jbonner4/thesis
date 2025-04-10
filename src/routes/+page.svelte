@@ -22,7 +22,8 @@
         zoom: 10
       });
   
-      map.addControl(new mapboxgl.NavigationControl());
+      // Add navigation control with custom positioning
+      map.addControl(new mapboxgl.NavigationControl(), 'bottom-left');
     });
   </script>
   
@@ -31,31 +32,33 @@
   
   <!-- Overlay: search + scrollable stories -->
   <div class="overlay">
-    <!-- Search bar -->
-    <form on:submit|preventDefault={handleSubmit} class="search-bar">
-      <input
-        type="text"
-        bind:value={address}
-        placeholder="Enter your address"
-      />
-      <button type="submit">Go</button>
-    </form>
-  
-    <!-- Scrollable story list -->
-    <div class="stories">
-      {#each [
-        "Access to Resources",
-        "Exposure to Polluted Air",
-        "Exposure to Hazardous Materials",
-        "Access to Safe and Healthy Housing",
-        "Exposure to Polluted Water",
-        "Exposure to Climate Change"
-      ] as topic}
-        <div class="story-card">
-          <h2>{topic}</h2>
-          <p>Placeholder content for this section...</p>
-        </div>
-      {/each}
+    <div class="sidebar">
+      <!-- Search bar at the top of the sidebar -->
+      <form on:submit|preventDefault={handleSubmit} class="search-bar">
+        <input
+          type="text"
+          bind:value={address}
+          placeholder="Enter your address"
+        />
+        <button type="submit">Go</button>
+      </form>
+    
+      <!-- Scrollable stories below -->
+      <div class="stories">
+        {#each [
+          "Access to Resources",
+          "Exposure to Polluted Air",
+          "Exposure to Hazardous Materials",
+          "Access to Safe and Healthy Housing",
+          "Exposure to Polluted Water",
+          "Exposure to Climate Change"
+        ] as topic}
+          <div class="story-card">
+            <h2>{topic}</h2>
+            <p>Placeholder content for this section...</p>
+          </div>
+        {/each}
+      </div>
     </div>
   </div>
   
@@ -75,8 +78,17 @@
       position: relative;
       z-index: 10;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       height: 100vh;
+      width: 100%;
+      justify-content: flex-end;
+    }
+
+    .sidebar {
+      width: 25%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
       padding: 1rem;
       box-sizing: border-box;
     }
@@ -85,6 +97,7 @@
       display: flex;
       gap: 0.5rem;
       margin-bottom: 1rem;
+      width: 100%;
     }
   
     .search-bar input {
@@ -101,22 +114,19 @@
       border: none;
       border-radius: 4px;
     }
-  
+    
     .stories {
-        width: 25%; /* take up 1/4 of the screen */
-        height: 100%;
-        overflow-y: auto;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 1rem;
-        border-left: 1px solid #ccc;
+      flex: 1;
+      overflow-y: auto;
     }
 
     .story-card {
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: white;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+
   </style>
   
