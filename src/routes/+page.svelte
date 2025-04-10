@@ -1,53 +1,48 @@
 <script>
-    import mapboxgl from 'mapbox-gl'; // Import the Mapbox library
-    import { onMount } from 'svelte'; // Svelte function to run code when component loads
-    import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public'; // Load your token from .env
+    import mapboxgl from 'mapbox-gl';
+    import 'mapbox-gl/dist/mapbox-gl.css';
+    import { onMount } from 'svelte';
+    import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
   
     let address = "";
-    let mapContainer; // This will be a reference to the HTML element for the map
+    let mapContainer;
   
     const handleSubmit = () => {
       console.log("Submitted address:", address);
-      // In future: use Mapbox Geocoding API to look up coordinates
+      // Geocoding comes later!
     };
   
     onMount(() => {
       mapboxgl.accessToken = PUBLIC_MAPBOX_TOKEN;
   
       const map = new mapboxgl.Map({
-        container: mapContainer, // Attach map to this element
-        style: 'mapbox://styles/mapbox/streets-v11', // Map style
-        center: [-74.006, 40.7128], // NYC coordinates (lng, lat)
+        container: mapContainer,
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-74.006, 40.7128],
         zoom: 10
       });
   
-      // Optional: add zoom + rotate controls
       map.addControl(new mapboxgl.NavigationControl());
     });
   </script>
   
-  <main class="min-h-screen p-4 space-y-6">
-    <h1 class="text-3xl font-bold">Environmental Justice NYC</h1>
+  <!-- The map fills the full screen -->
+  <div bind:this={mapContainer} class="map-container"></div>
   
-    <form on:submit|preventDefault={handleSubmit} class="flex space-x-2">
+  <!-- Overlay: search + scrollable stories -->
+  <div class="overlay">
+    <!-- Search bar -->
+    <form on:submit|preventDefault={handleSubmit} class="search-bar">
       <input
         type="text"
         bind:value={address}
         placeholder="Enter your address"
-        class="flex-1 border px-2 py-1 rounded"
       />
-      <button type="submit" class="bg-black text-white px-4 py-1 rounded">
-        Go
-      </button>
+      <button type="submit">Go</button>
     </form>
   
-   <!-- Map container: now with a class and explicit closing tag -->
-    <section
-        class="map-container-section rounded overflow-hidden"
-        bind:this={mapContainer}
-    ></section>
-  
-    <section class="grid gap-4 md:grid-cols-2">
+    <!-- Scrollable story list -->
+    <div class="stories">
       {#each [
         "Access to Resources",
         "Exposure to Polluted Air",
@@ -56,21 +51,71 @@
         "Exposure to Polluted Water",
         "Exposure to Climate Change"
       ] as topic}
-        <div class="p-4 border rounded shadow bg-white">
-          <h2 class="font-semibold text-lg">{topic}</h2>
-          <p class="text-sm text-gray-600">Placeholder description for this topic.</p>
+        <div class="story-card">
+          <h2>{topic}</h2>
+          <p>Placeholder content for this section...</p>
         </div>
       {/each}
-    </section>
-  </main>
+    </div>
+  </div>
   
   <style>
-    main {
-      font-family: system-ui, sans-serif;
+    /* The map fills the screen and sits underneath everything else */
+    .map-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
     }
   
-    /* Mapbox styles sometimes break if not given a height explicitly */
-    .map-container-section {
-      height: 400px;
+    /* Overlay that sits on top of the map */
+    .overlay {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+  
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+  
+    .search-bar input {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+  
+    .search-bar button {
+      padding: 0.5rem 1rem;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+  
+    .stories {
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+      border-radius: 8px;
+      flex: 1;
+    }
+  
+    .story-card {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
   </style>
+  
