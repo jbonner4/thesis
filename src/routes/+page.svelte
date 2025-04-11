@@ -8,7 +8,28 @@
     let mapContainer;
     let map;
 
-     // New: list of all story steps including the search bar
+    // Store initial view for reset
+    const initialView = {
+      center: [-74.006, 40.7128],
+      zoom: 10,
+      pitch: 0,
+      bearing: 0
+    };
+
+    // Function to reset map view
+    function resetMapView() {
+      if (map) {
+        map.flyTo({
+          center: initialView.center,
+          zoom: initialView.zoom,
+          pitch: initialView.pitch,
+          bearing: initialView.bearing,
+          duration: 1000
+        });
+      }
+    }
+
+    // New: list of all story steps including the search bar
     let cards = [
         { type: "search" },
         { title: "Access to Resources", content: "Placeholder content 1" },
@@ -63,11 +84,60 @@
         map = new mapboxgl.Map({
             container: mapContainer,
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [-74.006, 40.7128], // NYC
-            zoom: 10
-    });
+            center: initialView.center,
+            zoom: initialView.zoom,
+            dragRotate: true,
+            scrollZoom: false,
+            boxZoom: false,
+            keyboard: false,
+            doubleClickZoom: true
+        });
 
-    map.addControl(new mapboxgl.NavigationControl(), 'bottom-left');
+        // Prevent scrolling on the map container
+        mapContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            // Forward the scroll to the stories container
+            const stories = document.querySelector('.stories');
+            if (stories) {
+                stories.scrollBy(0, e.deltaY);
+            }
+        }, { passive: false });
+
+        // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
+
+        // Add keyboard handler for rotation
+        map.on('keydown', (e) => {
+            if (e.shiftKey) {
+                map.dragRotate.enable();
+            }
+        });
+
+        map.on('keyup', (e) => {
+            if (!e.shiftKey) {
+                map.dragRotate.disable();
+            }
+        });
+
+        // Add navigation control with custom positioning
+        map.addControl(new mapboxgl.NavigationControl(), 'bottom-left');
+
+        // Add reset button
+        const resetButton = document.createElement('button');
+        resetButton.className = 'mapboxgl-ctrl-icon mapboxgl-ctrl-reset';
+        resetButton.type = 'button';
+        resetButton.setAttribute('aria-label', 'Reset view');
+        resetButton.innerHTML = '<span class="mapboxgl-ctrl-icon" aria-hidden="true"></span>';
+        resetButton.addEventListener('click', resetMapView);
+        
+        const resetControl = document.createElement('div');
+        resetControl.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+        resetControl.appendChild(resetButton);
+        
+        map.addControl({
+          onAdd: () => resetControl,
+          onRemove: () => resetControl.remove()
+        }, 'bottom-left');
     });
 
     $: if (map && mapViews[currentCardIndex]) {
@@ -82,113 +152,131 @@
   
   <!-- The map fills the full screen -->
   <div bind:this={mapContainer} class="map-container"></div>
-  
-  <!-- Overlay: search + scrollable stories -->
-  <div class="overlay">
-    
-    <!-- Check current card -->
-    <!-- <p style="position: fixed; bottom: 10px; left: 10px; background: white; padding: 4px;">
-        Current Card: {currentCardIndex}
-    </p> -->
 
-    <div class="sidebar">
-    
-      <div class="stories">
-        {#each cards as card, i}
-          <div
-            class="story-card"
-            use:observeCard={i}
-            class:selected={i === currentCardIndex}
-          >
-            {#if card.type === "search"}
-              <!-- Render the search bar as a scrollable 'card' -->
-              <form on:submit|preventDefault={handleSubmit} class="search-bar">
-                <input
-                  type="text"
-                  bind:value={address}
-                  placeholder="Enter your address"
-                />
-                <button type="submit">Go</button>
-              </form>
-            {:else}
-              <h2>{card.title}</h2>
-              <p>{card.content}</p>
-            {/if}
-          </div>
-        {/each}
-      </div>
+  <!-- Sidebar with stories and search -->
+  <div class="sidebar">
+    <div class="stories">
+      {#each cards as card, i}
+        <div
+          class="story-card"
+          use:observeCard={i}
+          class:selected={i === currentCardIndex}
+        >
+          {#if card.type === "search"}
+            <form on:submit|preventDefault={handleSubmit} class="search-bar">
+              <input
+                type="text"
+                bind:value={address}
+                placeholder="Enter your address"
+              />
+              <button type="submit">Go</button>
+            </form>
+          {:else}
+            <h2>{card.title}</h2>
+            <p>{card.content}</p>
+          {/if}
+        </div>
+      {/each}
     </div>
   </div>
 
   <style>
-    /* The map fills the screen and sits underneath everything else */
-    .map-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 0;
+    /* Prevent body scrolling */
+    :global(body) {
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
     }
 
-    
-  
-    /* Overlay that sits on top of the map */
-    .overlay {
-        position: relative;
-        z-index: 10;
-        display: flex;
-        flex-direction: row;
-        height: 100vh;
-        width: 100%;
-        justify-content: flex-end;
+    /* The map fills the screen and sits underneath everything else */
+    .map-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+      touch-action: none;
     }
 
     .sidebar {
-        width: 25%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        padding: 1rem;
-        box-sizing: border-box;
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 25%;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      box-sizing: border-box;
+      z-index: 1;
+      overflow: hidden;
     }
-  
-    .search-bar {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-        width: 100%;
-    }
-  
-    .search-bar input {
-        flex: 1;
-        padding: 0.5rem;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-    }
-  
-    .search-bar button {
-        padding: 0.5rem 1rem;
-        background: black;
-        color: white;
-        border: none;
-        border-radius: 4px;
-    }
-    
+
     .stories {
-        flex: 1;
-        overflow-y: auto;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 0.5rem;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .stories::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .stories::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .stories::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+
+    .stories::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      width: 100%;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .search-bar button {
+      padding: 0.5rem 1rem;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 4px;
     }
 
     .story-card {
-        margin-top: 45vh;
-        margin-bottom: 100vh;
-        padding: 1rem;
-        background: white;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-top: 45vh;
+      margin-bottom: 45vh;
+      padding: 1rem;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
+    /* Style for the reset button */
+    :global(.mapboxgl-ctrl-reset) {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z'/%3E%3C/svg%3E");
+      background-size: 18px;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
   </style>
   
