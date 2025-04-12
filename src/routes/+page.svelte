@@ -3,6 +3,7 @@
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { onMount } from 'svelte';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
+    import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
   
     let address = "";
     let mapContainer;
@@ -11,7 +12,7 @@
     let userMarker = null;
 
     // Store initial view for reset
-    const initialView = {
+    let initialView = {
       center: [-74.006, 40.7128],
       zoom: 10,
       pitch: 0,
@@ -266,6 +267,13 @@
         console.log("Submitted address:", address);
         const location = await geocodeAddress(address);
 
+        initialView = {
+            center: [location.lng, location.lat],
+            zoom: 13,
+            pitch: 0,
+            bearing: 0
+        };
+
         if (location && map) {
             map.flyTo({
             center: [location.lng, location.lat],
@@ -360,6 +368,45 @@
           onAdd: () => resetControl,
           onRemove: () => resetControl.remove()
         }, 'bottom-left');
+
+        const geocoder = new MapboxGeocoder({
+            accessToken: PUBLIC_MAPBOX_TOKEN,
+            mapboxgl: mapboxgl,
+            marker: false,
+            placeholder: "Enter your address",
+            countries: 'us', // optional: restrict to US
+            bbox: [-74.2591, 40.4774, -73.7004, 40.9176] // optional: restrict to NYC bounds
+        });
+
+        const geocoderContainer = document.getElementById('geocoder');
+        if (geocoderContainer) {
+            geocoderContainer.appendChild(geocoder.onAdd(map));
+        }
+
+        // When user selects a result
+        geocoder.on('result', (e) => {
+            address = e.result.place_name;
+            const coords = e.result.center;
+
+            if (userMarker) userMarker.remove();
+
+            userMarker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+
+            map.flyTo({
+                center: coords,
+                zoom: 13,
+                essential: true
+            });
+
+            initialView = {
+                center: coords,
+                zoom: 13,
+                pitch: 0,
+                bearing: 0
+            };
+
+            scrollToCard(1);
+        });
     });
     
 
@@ -439,14 +486,14 @@
           class:selected={i === currentCardIndex}
         >
           {#if card.type === "search"}
-            <form on:submit|preventDefault={handleSubmit} class="search-bar">
+            <!-- <form on:submit|preventDefault={handleSubmit} class="search-bar">
               <input
                 type="text"
                 bind:value={address}
                 placeholder="Enter your address"
               />
-              <button type="submit">Go</button>
-            </form>
+            </form> -->
+            <div id="geocoder" class="geocoder-inline"></div>
           {:else}
             <h2>{card.title}</h2>
             <p>{card.content}</p>
@@ -468,6 +515,54 @@
       overflow: hidden;
       margin: 0;
       padding: 0;
+    }
+
+    /* Tweak the Geocoder container */
+    .geocoder-inline.mapboxgl-ctrl-geocoder {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        padding: 0.25rem 0.5rem;
+        width: 100%;
+        box-shadow: none;
+    }
+
+    /* Remove search icon and X button */
+    .geocoder-inline.mapboxgl-ctrl-geocoder.mapboxgl-ctrl-icon {
+        display: none;
+    }
+
+    /* Optional: simplify suggestion dropdown */
+    .geocoder-inline.suggestions {
+        list-style: none;
+        padding-left: 0;
+        font-size: 0.75rem; /* ~12px = 9pt */
+        margin-bottom: 0.4rem;
+    }
+
+    .geocoder-inline.suggestions.li:hover {
+        background: #f0f0f0;
+    }
+
+    /* Hide the clear (X) button */
+    .mapboxgl-ctrl-geocoder.mapboxgl-ctrl-geocoder--button,
+    .mapboxgl-ctrl-geocoder--icon.mapboxgl-ctrl-geocoder--button {
+        display: none !important;
+    }
+
+    /* Base list style */
+    .mapboxgl-ctrl-geocoder.suggestions {
+        list-style: none;
+        padding-left: 0;
+        font-size: 0.75rem; /* ≈ 9pt */
+    }
+
+    /* Entry spacing */
+    .mapboxgl-ctrl-geocoder.suggestions li {
+        padding: 0.4rem 0.75rem;
+        margin-bottom: 0.4rem;
+        cursor: pointer;
+        border-bottom: 1px solid transparent;
     }
 
     /* The map fills the screen and sits underneath everything else */
@@ -529,20 +624,20 @@
       width: 100%;
     }
 
-    .search-bar input {
+    /* .search-bar input {
       flex: 1;
       padding: 0.5rem;
       border-radius: 4px;
       border: 1px solid #ccc;
-    }
+    } */
 
-    .search-bar button {
+    /* .search-bar button {
       padding: 0.5rem 1rem;
       background: black;
       color: white;
       border: none;
       border-radius: 4px;
-    }
+    } */
 
     .story-card {
       margin-top: 45vh;
@@ -636,6 +731,25 @@
     :global(body.dark) {
         background: #111;
         color: #eee;
+    }
+
+    /* Theme-aware colors */
+    :global(.light) .mapboxgl-ctrl-geocoder.suggestions {
+        background: white;
+        color: #111;
+    }
+
+    :global(.dark) .mapboxgl-ctrl-geocoder.suggestions {
+        background: #2a2a2a;
+        color: #eee;
+    }
+
+    :global(.light) .mapboxgl-ctrl-geocoder.suggestions li:hover {
+        background-color: #f0f0f0;
+    }
+
+    :global(.dark) .mapboxgl-ctrl-geocoder.suggestions li:hover {
+     background-color: #444;
     }
 
     .sidebar {
