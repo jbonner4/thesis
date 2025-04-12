@@ -7,6 +7,8 @@
     let address = "";
     let mapContainer;
     let map;
+    let theme = 'light';
+    let userMarker = null;
 
     // Store initial view for reset
     const initialView = {
@@ -29,16 +31,203 @@
       }
     }
 
+    async function geocodeAddress(query) {
+        const endpoint = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${PUBLIC_MAPBOX_TOKEN}`;
+
+        try {
+            const res = await fetch(endpoint);
+            const data = await res.json();
+
+            if (data.features && data.features.length > 0) {
+            const [lng, lat] = data.features[0].center;
+            return { lat, lng };
+            } else {
+            throw new Error("No results found");
+            }
+        } catch (err) {
+            console.error("Geocoding error:", err);
+            return null;
+        }
+    }
+
+
+    function toggleTheme() {
+        theme = theme === 'dark' ? 'light' : 'dark';
+    }
+
     // New: list of all story steps including the search bar
     let cards = [
         { type: "search" },
-        { title: "Access to Resources", content: "Placeholder content 1" },
-        { title: "Exposure to Polluted Air", content: "Placeholder content 2" },
-        { title: "Exposure to Hazardous Materials", content: "Placeholder content 3" },
-        { title: "Access to Safe and Healthy Housing", content: "Placeholder content 4" },
-        { title: "Exposure to Polluted Water", content: "Placeholder content 5" },
-        { title: "Exposure to Climate Change", content: "Placeholder content 6" }
+
+        // Access to Resources
+        {
+            sectionId: "resources",
+            type: "intro",
+            label: "Access to Resources",
+            title: "Access to Resources",
+            content: "Intro content for Access to Resources."
+        },
+        {
+            sectionId: "resources",
+            type: "subsection",
+            label: "Subsection 1",
+            title: "Subsection 1",
+            content: "Placeholder content for Subsection 1."
+        },
+        {
+            sectionId: "resources",
+            type: "subsection",
+            label: "Subsection 2",
+            title: "Subsection 2",
+            content: "Placeholder content for Subsection 2.",
+            mapView: { center: [-73.95, 40.75], zoom: 12 }
+        },
+
+        // Exposure to Polluted Air
+        {
+            sectionId: "air",
+            type: "intro",
+            label: "Exposure to Polluted Air",
+            title: "Exposure to Polluted Air",
+            content: "Intro content for Exposure to Polluted Air.",
+            mapView: { center: [-73.98, 40.74], zoom: 13 }
+        },
+        {
+            sectionId: "air",
+            type: "subsection",
+            label: "Subsection 1",
+            title: "Subsection 1",
+            content: "Placeholder content for Subsection 1."
+        },
+        {
+            sectionId: "air",
+            type: "subsection",
+            label: "Subsection 2",
+            title: "Subsection 2",
+            content: "Placeholder content for Subsection 2.",
+            mapView: { center: [-74.00, 40.73], zoom: 12.5 },
+        },
+
+        // Exposure to Hazardous Materials
+        {
+            sectionId: "hazards",
+            type: "intro",
+            label: "Exposure to Hazardous Materials",
+            title: "Exposure to Hazardous Materials",
+            content: "Intro content for hazardous materials exposure."
+        },
+        {
+            sectionId: "hazards",
+            type: "subsection",
+            label: "Subsection 1",
+            title: "Subsection 1",
+            content: "Placeholder content for Subsection 1."
+        },
+        {
+            sectionId: "hazards",
+            type: "subsection",
+            label: "Subsection 2",
+            title: "Subsection 2",
+            content: "Placeholder content for Subsection 2.",
+            mapView: { center: [-73.96, 40.76], zoom: 11.5 }
+        },
+
+        // Access to Safe and Healthy Housing
+        {
+            sectionId: "housing",
+            type: "intro",
+            label: "Access to Safe and Healthy Housing",
+            title: "Access to Safe and Healthy Housing",
+            content: "Intro content for housing access and safety."
+        },
+        {
+            sectionId: "housing",
+            type: "subsection",
+            label: "Subsection 1",
+            title: "Subsection 1",
+            content: "Placeholder content for Subsection 1.",
+            mapView: { center: [-73.99, 40.71], zoom: 13 }
+        },
+        {
+            sectionId: "housing",
+            type: "subsection",
+            label: "Subsection 2",
+            title: "Subsection 2",
+            content: "Placeholder content for Subsection 2."
+        },
+
+        // Exposure to Polluted Water
+        {
+            sectionId: "water",
+            type: "intro",
+            label: "Exposure to Polluted Water",
+            title: "Exposure to Polluted Water",
+            content: "Intro content for polluted water exposure."
+        },
+        {
+            sectionId: "water",
+            type: "subsection",
+            label: "Subsection 1",
+            title: "Subsection 1",
+            content: "Placeholder content for Subsection 1."
+        },
+        {
+            sectionId: "water",
+            type: "subsection",
+            label: "Subsection 2",
+            title: "Subsection 2",
+            content: "Placeholder content for Subsection 2."
+        },
+
+        // Exposure to Climate Change
+        {
+            sectionId: "climate",
+            type: "intro",
+            label: "Exposure to Climate Change",
+            title: "Exposure to Climate Change",
+            content: "Intro content for climate change vulnerability."
+        },
+        {
+            sectionId: "climate",
+            type: "subsection",
+            label: "Subsection 1",
+            title: "Subsection 1",
+            content: "Placeholder content for Subsection 1.",
+            mapView: { center: [-73.92, 40.77], zoom: 12 }
+        },
+        {
+            sectionId: "climate",
+            type: "subsection",
+            label: "Subsection 2",
+            title: "Subsection 2",
+            content: "Placeholder content for Subsection 2."
+        }
     ];
+
+        // Group cards by sectionId (excluding "search")
+    let navSections = [];
+
+        cards.forEach((card, index) => {
+            if (card.type === 'intro') {
+                const section = {
+                    sectionId: card.sectionId,
+                    iconIndex: index,
+                    label: card.label,
+                    items: [{ label: card.label, index }] // intro
+                };
+
+                // Add subsections for this section
+                cards.forEach((sub, i) => {
+                    if (sub.sectionId === card.sectionId && sub.type === 'subsection') {
+                        section.items.push({ label: sub.label, index: i });
+                    }
+                });
+
+                navSections.push(section);
+        }
+    });
+
+
 
     let mapViews = [
         { center: [-74.006, 40.7128], zoom: 10 }, // search
@@ -73,12 +262,45 @@
         };
     }
     
-    const handleSubmit = () => {
-      console.log("Submitted address:", address);
-      // Geocoding comes later!
+    const handleSubmit = async () => {
+        console.log("Submitted address:", address);
+        const location = await geocodeAddress(address);
+
+        if (location && map) {
+            map.flyTo({
+            center: [location.lng, location.lat],
+            zoom: 13,
+            essential: true
+            });
+            if (userMarker) userMarker.remove(); // remove previous if any
+
+            userMarker = new mapboxgl.Marker()
+                .setLngLat([location.lng, location.lat])
+                .addTo(map);
+
+
+            console.log("Geocoded location:", location);
+        } else {
+            alert("Could not find that address.");
+        }
+
+        setTimeout(() => scrollToCard(1), 300);
     };
+
+
+    function scrollToCard(index) {
+        const cards = document.querySelectorAll('.story-card');
+        if (cards[index]) {
+            cards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
   
     onMount(() => {
+
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+        }
+
         mapboxgl.accessToken = PUBLIC_MAPBOX_TOKEN;
 
         map = new mapboxgl.Map({
@@ -139,19 +361,73 @@
           onRemove: () => resetControl.remove()
         }, 'bottom-left');
     });
+    
 
-    $: if (map && mapViews[currentCardIndex]) {
+    $: if (map && cards[currentCardIndex]?.mapView) {
+        const view = cards[currentCardIndex].mapView;
         map.flyTo({
-            center: mapViews[currentCardIndex].center,
-            zoom: mapViews[currentCardIndex].zoom,
+            center: view.center,
+            zoom: view.zoom,
             essential: true
         });
     }
     
   </script>
+
+<div class={theme}>
+    <!-- The map fills the full screen -->
+    <div bind:this={mapContainer} class="map-container"></div>
+
+    <button class="theme-toggle" on:click={toggleTheme}>
+        {theme === 'dark' ? '🌙': '☀️'}
+    </button>
+
+  <!-- Left-side vertical navigation bar -->
+  <div class="navbar">
+     <!-- Search icon -->
+    <div class="nav-wrapper">
+        <button
+        class="nav-button {currentCardIndex === 0 ? 'active' : ''}"
+        on:click={() => scrollToCard(0)}
+        >
+        🔍
+        </button>
+    </div>
+    {#each navSections as section}
+      <div class="nav-wrapper">
+        <button
+            class="nav-button {cards[currentCardIndex]?.sectionId === section.sectionId ? 'active' : ''}"
+            on:click={() => scrollToCard(section.iconIndex)}
+        >
+          {#if section.sectionId === "resources"}
+            🌳
+          {:else if section.sectionId === "air"}
+            🏭
+          {:else if section.sectionId === "hazards"}
+            ⚠️
+          {:else if section.sectionId === "housing"}
+            🏠
+          {:else if section.sectionId === "water"}
+            💧
+          {:else if section.sectionId === "climate"}
+            🔥
+          {:else}
+            📍
+          {/if}
+        </button>
   
-  <!-- The map fills the full screen -->
-  <div bind:this={mapContainer} class="map-container"></div>
+        <!-- Hover menu with section intro + subsections -->
+        <div class="tooltip tooltip-clickable">
+          <ul>
+            {#each section.items as item}
+              <li on:click={() => scrollToCard(item.index)}>{item.label}</li>
+            {/each}
+          </ul>
+        </div>
+      </div>
+    {/each}
+  </div>
+  
 
   <!-- Sidebar with stories and search -->
   <div class="sidebar">
@@ -174,11 +450,17 @@
           {:else}
             <h2>{card.title}</h2>
             <p>{card.content}</p>
+            <ul>
+                {#each card.subsections as sub}
+                  <li>{sub}</li>
+                {/each}
+            </ul>
           {/if}
         </div>
       {/each}
     </div>
   </div>
+</div>
 
   <style>
     /* Prevent body scrolling */
@@ -278,5 +560,165 @@
       background-position: center;
       background-repeat: no-repeat;
     }
+
+    .navbar {
+        position: fixed;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        z-index: 2;
+    }
+
+    .nav-button {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .nav-button.active {
+        background: black;
+        color: white;
+        border-color: black;
+    }
+
+    .nav-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .tooltip {
+        position: absolute;
+        left: 3rem;
+        color: black;
+        background-color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateY(-50%);
+        top: 50%;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .nav-wrapper:hover .tooltip {
+        opacity: 1;
+    }
+
+    :global(body) {
+        font-family: 'Libre Franklin', system-ui, sans-serif;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+        color: #222;
+    }
+
+    :global(body.light) {
+        background: #f9f9f9;
+        color: #111;
+    }
+
+    :global(body.dark) {
+        background: #111;
+        color: #eee;
+    }
+
+    .sidebar {
+        background: var(--sidebar-bg);
+    }
+
+    .story-card {
+        background: var(--card-bg);
+        color: var(--card-text);
+    }
+
+    /* Set defaults for both modes */
+    :global(.light) {
+        --card-bg: #ffffff;
+        --card-text: #222;
+        --toggle-bg: black;
+    }
+
+    :global(.dark) {
+        --card-bg: #2a2a2a;
+        --card-text: #eee;
+        --toggle-bg: white;
+    }
+
+    /* Style the toggle button */
+    .theme-toggle {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 10;
+        background-color: var(--toggle-bg);
+        border-radius: 50%;
+        border: 1px solid #ccc;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .tooltip.tooltip-clickable {
+        left: 3rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent; /* removed background */
+        color: white;
+        padding: 0;
+        font-size: 0.8rem;
+        opacity: 0;
+        pointer-events: auto;
+        transition: opacity 0.2s ease;
+        white-space: nowrap;
+        z-index: 3;
+    }
+
+    .nav-wrapper:hover .tooltip-clickable {
+        opacity: 1;
+    }
+
+    .tooltip-clickable ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .tooltip-clickable li {
+        cursor: pointer;
+        padding: 0.2rem 0;
+        /* Removed border and background */
+        font-weight: 400;
+        color: white;
+    }
+
+    .tooltip-clickable li:hover {
+        text-decoration: underline;
+    }
+
+    .tooltip-clickable li:last-child {
+        border-bottom: none;
+    }
+
   </style>
   
