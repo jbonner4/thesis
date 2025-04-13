@@ -3,15 +3,20 @@
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { onMount } from 'svelte';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
+    import Papa from 'papaparse';
+
   
     let address = "";
     let mapContainer;
     let map;
     let theme = 'light';
     let userMarker = null;
+    let nycZipCodes = new Set();
+    let zipError = "";
+
 
     // Store initial view for reset
-    const initialView = {
+    let initialView = {
       center: [-74.006, 40.7128],
       zoom: 10,
       pitch: 0,
@@ -39,8 +44,7 @@
             const data = await res.json();
 
             if (data.features && data.features.length > 0) {
-            const [lng, lat] = data.features[0].center;
-            return { lat, lng };
+            return data.features[0]; // ✅ return the full feature
             } else {
             throw new Error("No results found");
             }
@@ -264,18 +268,61 @@
     
     const handleSubmit = async () => {
         console.log("Submitted address:", address);
-        const location = await geocodeAddress(address);
+        let location = await geocodeAddress(address);
+        
+        console.log("Full geocode result:", location);
+
+        if (!location) {
+            zipError = "Could not find that address.";
+            return;
+        }
+
+        let zipFeature = location.context?.find(c => c.id.startsWith("postcode"));
+        let zipCode = zipFeature?.text;
+
+        console.log("Extracted ZIP:", zipCode);
+
+        if (!nycZipCodes.has(zipCode)) {
+            console.warn(`Initial result (${location.place_name}) not in NYC, retrying...`);
+
+            // Try again, forcing New York
+            const forcedQuery = `${address}, New York`;
+            location = await geocodeAddress(forcedQuery);
+
+            // Recheck ZIP
+            zipFeature = location.context?.find(c => c.id.startsWith("postcode"));
+            zipCode = zipFeature?.text;
+
+            if (!nycZipCodes.has(zipCode)) {
+                zipError = "Please enter an address within New York City.";
+                return;
+            }
+        } else {
+            zipError = ""; // clear any previous error
+        }
+
+        let [lng, lat] = location.center;
+
+        console.log("Final ZIP:", zipCode);
+        console.log("Used corrected location:", location.place_name);
+
+        initialView = {
+             center: [lng, lat],
+             zoom: 13,
+             pitch: 0,
+             bearing: 0
+         };
 
         if (location && map) {
             map.flyTo({
-            center: [location.lng, location.lat],
+            center: [lng, lat],
             zoom: 13,
             essential: true
             });
             if (userMarker) userMarker.remove(); // remove previous if any
 
             userMarker = new mapboxgl.Marker()
-                .setLngLat([location.lng, location.lat])
+                .setLngLat([lng, lat])
                 .addTo(map);
 
 
@@ -295,13 +342,23 @@
         }
     }
   
-    onMount(() => {
+    onMount(async () => {
 
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             theme = 'dark';
         }
 
         mapboxgl.accessToken = PUBLIC_MAPBOX_TOKEN;
+
+        const response = await fetch('/src/data/nyc_zips.csv');
+        const text = await response.text();
+
+        const parsed = Papa.parse(text, { header: true });
+        const rows = parsed.data;
+
+        nycZipCodes = new Set(
+            rows.map(row => row["ZIP Code"]?.trim()).filter(Boolean)
+        );
 
         map = new mapboxgl.Map({
             container: mapContainer,
@@ -447,6 +504,9 @@
               />
               <button type="submit">Go</button>
             </form>
+            {#if zipError}
+                <p style="color: red; margin-top: 0.25rem; margin-bottom: 0rem; font-size: 0.8rem; font-weight:800; font-style:italic">{zipError}</p>
+            {/if}
           {:else}
             <h2>{card.title}</h2>
             <p>{card.content}</p>
@@ -530,6 +590,7 @@
     }
 
     .search-bar input {
+      font-family: 'Libre Franklin', system-ui, sans-serif;
       flex: 1;
       padding: 0.5rem;
       border-radius: 4px;
@@ -537,6 +598,8 @@
     }
 
     .search-bar button {
+        font-family: 'Libre Franklin', system-ui, sans-serif;
+        font-weight: 900;
       padding: 0.5rem 1rem;
       background: black;
       color: white;
