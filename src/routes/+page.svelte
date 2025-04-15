@@ -4,6 +4,8 @@
     import { onMount } from 'svelte';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
     import Papa from 'papaparse';
+    import redliningData from '/src/data/redlining_all_boroughs.json';
+    import driData from '/src/data/nta_dri_merged.json';
 
   
     let address = "";
@@ -84,7 +86,6 @@
             label: "Subsection 2",
             title: "Subsection 2",
             content: "Placeholder content for Subsection 2.",
-            mapView: { center: [-73.95, 40.75], zoom: 12 }
         },
 
         // Exposure to Polluted Air
@@ -94,7 +95,6 @@
             label: "Exposure to Polluted Air",
             title: "Exposure to Polluted Air",
             content: "Intro content for Exposure to Polluted Air.",
-            mapView: { center: [-73.98, 40.74], zoom: 13 }
         },
         {
             sectionId: "air",
@@ -314,11 +314,11 @@
          };
 
         if (location && map) {
-            map.flyTo({
-            center: [lng, lat],
-            zoom: 13,
-            essential: true
-            });
+            // map.flyTo({
+            // center: [lng, lat],
+            // zoom: 13,
+            // essential: true
+            // });
             if (userMarker) userMarker.remove(); // remove previous if any
 
             userMarker = new mapboxgl.Marker()
@@ -417,8 +417,70 @@
           onAdd: () => resetControl,
           onRemove: () => resetControl.remove()
         }, 'bottom-left');
+
+        map.on('load', () => {
+            map.addSource('redlining', {
+                type: 'geojson',
+                data: redliningData
+            });
+
+            map.addLayer({
+                id: 'redlining-fill',
+                type: 'fill',
+                source: 'redlining',
+                paint: {
+                'fill-color': [
+                    'match',
+                    ['get', 'grade'],
+                    'A', '#57f287',
+                    'B', '#3498db',
+                    'C', '#f1c40f',
+                    'D', '#e74c3c',
+                    '#000000'
+                ],
+                'fill-opacity': 0
+                }
+            });
+
+            map.addLayer({
+                id: 'redlining-outline',
+                type: 'line',
+                source: 'redlining',
+                paint: {
+                'line-color': '#333',
+                'line-width': 1
+                }
+            });
+
+            map.addSource('dri', {
+                type: 'geojson',
+                data: driData
+            });
+
+            map.addLayer({
+                id: 'dri-layer',
+                type: 'fill',
+                source: 'dri',
+                paint: {
+                'fill-color': [
+                    'match',
+                    ['get', 'DisplacementRiskIndex'],
+                    'Lowest', '#fee5d9',
+                    'Lower', '#fcbba1',
+                    'Intermediate', '#fc9272',
+                    'Higher', '#fb6a4a',
+                    'Highest', '#cb181d',
+                    /* default if blank or unknown */ '#000000'
+                ],
+                'fill-opacity': 0 // initially hidden
+                }
+            });
+
+            // hide by default
+            map.setLayoutProperty('redlining-fill', 'visibility', 'none');
+            map.setLayoutProperty('redlining-outline', 'visibility', 'none');
+        });
     });
-    
 
     $: if (map && cards[currentCardIndex]?.mapView) {
         const view = cards[currentCardIndex].mapView;
@@ -427,6 +489,55 @@
             zoom: view.zoom,
             essential: true
         });
+    }
+
+    // Fade in redlining in Subsection 1
+    $: if (map && cards[currentCardIndex]?.label === 'Subsection 1' && cards[currentCardIndex]?.sectionId === 'resources') {
+        map.setLayoutProperty('redlining-fill', 'visibility', 'visible');
+        map.setLayoutProperty('redlining-outline', 'visibility', 'visible');
+        map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
+            duration: 1000,
+            delay: 0
+        });
+        map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
+            duration: 1000,
+            delay: 0
+        });
+        map.setPaintProperty('redlining-fill', 'fill-opacity', 0.4);
+        map.setPaintProperty('dri-layer', 'fill-opacity', 0, { duration: 1000 });
+    }
+
+    // Fade out redlining and fade in DRI in Subsection 2
+    $: if (map && cards[currentCardIndex]?.label === 'Subsection 2' && cards[currentCardIndex]?.sectionId === 'resources') {
+        map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
+            duration: 4000,
+            delay: 0
+        });
+        map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
+        map.setLayoutProperty('redlining-outline', 'visibility', 'visible');
+        map.setPaintProperty('dri-layer', 'fill-opacity-transition', {
+            duration: 3000,
+            delay: 0
+        });
+        map.setPaintProperty('dri-layer', 'fill-opacity', 0.4);
+    }
+
+    // Hide both if not in those subsections
+    $: if (
+        map &&
+        !(
+        (cards[currentCardIndex]?.label === 'Subsection 1' && cards[currentCardIndex]?.sectionId === 'resources') ||
+        (cards[currentCardIndex]?.label === 'Subsection 2' && cards[currentCardIndex]?.sectionId === 'resources')
+        )
+    ) {
+        map.setPaintProperty('dri-layer', 'fill-opacity-transition', {
+            duration: 1000,
+            delay: 0
+        });
+        map.setLayoutProperty('redlining-fill', 'visibility', 'none');
+        map.setLayoutProperty('redlining-outline', 'visibility', 'none');
+        map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
+        map.setPaintProperty('dri-layer', 'fill-opacity', 0);
     }
     
   </script>
@@ -477,7 +588,15 @@
         <div class="tooltip tooltip-clickable">
           <ul>
             {#each section.items as item}
-              <li on:click={() => scrollToCard(item.index)}>{item.label}</li>
+                <li>
+                    <button
+                    type="button"
+                    on:click={() => scrollToCard(item.index)}
+                    class="tooltip-button"
+                    >
+                    {item.label}
+                    </button>
+                </li>
             {/each}
           </ul>
         </div>
@@ -767,20 +886,27 @@
         padding: 0;
     }
 
-    .tooltip-clickable li {
-        cursor: pointer;
-        padding: 0.2rem 0;
-        /* Removed border and background */
-        font-weight: 400;
-        color: white;
-    }
-
-    .tooltip-clickable li:hover {
-        text-decoration: underline;
-    }
 
     .tooltip-clickable li:last-child {
         border-bottom: none;
+    }
+
+    .tooltip-clickable button.tooltip-button {
+        all: unset;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        padding: 0.2rem 0;
+        width: 100%;
+        text-align: left;
+    }
+
+    .tooltip-clickable button.tooltip-button:hover {
+        text-decoration: underline;
+    }
+
+    :global(.light) .tooltip-button:focus {
+        outline: 2px solid black;
     }
 
   </style>
