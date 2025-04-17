@@ -350,7 +350,7 @@
 
         mapboxgl.accessToken = PUBLIC_MAPBOX_TOKEN;
 
-        const response = await fetch('/src/data/nyc_zips.csv');
+        const response = await fetch('/data/nyc_zips.csv');
         const text = await response.text();
 
         const parsed = Papa.parse(text, { header: true });
@@ -724,6 +724,7 @@
       color: white;
       border: none;
       border-radius: 4px;
+      cursor: pointer;
     }
 
     .story-card {
