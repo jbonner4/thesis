@@ -11,11 +11,11 @@
     let address = "";
     let mapContainer;
     let map;
-    let theme = 'light';
+    // let theme = 'light';
     let userMarker = null;
     let nycZipCodes = new Set();
     let zipError = "";
-
+    let stylesLoaded = true;
 
     // Store initial view for reset
     let initialView = {
@@ -57,12 +57,19 @@
     }
 
 
-    function toggleTheme() {
-        theme = theme === 'dark' ? 'light' : 'dark';
-    }
+    // function toggleTheme() {
+    //     theme = theme === 'dark' ? 'light' : 'dark';
+    // }
 
     // New: list of all story steps including the search bar
     let cards = [
+        {
+            sectionId: "ejnyc",
+            type: "intro",
+            label: "What is EJNYC?",
+            title: "What is the EJNYC Report?",
+            content: "This report identifies NYC areas facing elevated environmental and health risks due to social and economic inequality. These are known as Environmental Justice Areas, and they are mapped and tracked by the city. Press the x button at any time to toggle the overlay showing EJ areas."
+        },
         { type: "search" },
 
         // Access to Resources
@@ -212,7 +219,7 @@
     let navSections = [];
 
         cards.forEach((card, index) => {
-            if (card.type === 'intro') {
+            if (card.type === 'intro' && card.sectionId !== 'ejnyc') {
                 const section = {
                     sectionId: card.sectionId,
                     iconIndex: index,
@@ -343,10 +350,9 @@
     }
   
     onMount(async () => {
-
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            theme = 'dark';
-        }
+        // if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        //     theme = 'dark';
+        // }
 
         mapboxgl.accessToken = PUBLIC_MAPBOX_TOKEN;
 
@@ -542,104 +548,146 @@
     
   </script>
 
-<div class={theme}>
-    <!-- The map fills the full screen -->
-    <div bind:this={mapContainer} class="map-container"></div>
+{#if stylesLoaded}
+        <!-- The map fills the full screen -->
+        <div bind:this={mapContainer} class="map-container"></div>
 
-    <button class="theme-toggle" on:click={toggleTheme}>
-        {theme === 'dark' ? '🌙': '☀️'}
-    </button>
+        <!-- <button class="theme-toggle" on:click={toggleTheme}>
+            {theme === 'dark' ? '🌙': '☀️'}
+        </button> -->
 
-  <!-- Left-side vertical navigation bar -->
-  <div class="navbar">
-     <!-- Search icon -->
-    <div class="nav-wrapper">
-        <button
-        class="nav-button {currentCardIndex === 0 ? 'active' : ''}"
-        on:click={() => scrollToCard(0)}
-        >
-        🔍
-        </button>
-    </div>
-    {#each navSections as section}
-      <div class="nav-wrapper">
-        <button
-            class="nav-button {cards[currentCardIndex]?.sectionId === section.sectionId ? 'active' : ''}"
-            on:click={() => scrollToCard(section.iconIndex)}
-        >
-          {#if section.sectionId === "resources"}
-            🌳
-          {:else if section.sectionId === "air"}
-            🏭
-          {:else if section.sectionId === "hazards"}
-            ⚠️
-          {:else if section.sectionId === "housing"}
-            🏠
-          {:else if section.sectionId === "water"}
-            💧
-          {:else if section.sectionId === "climate"}
-            🔥
-          {:else}
-            📍
-          {/if}
-        </button>
-  
-        <!-- Hover menu with section intro + subsections -->
-        <div class="tooltip tooltip-clickable">
-          <ul>
-            {#each section.items as item}
+      <!-- Left-side vertical navigation bar -->
+      <div class="navbar">
+        <!-- Intro icon FIRST -->
+        <div class="nav-wrapper">
+            <button
+              class="nav-button {cards[currentCardIndex]?.sectionId === 'ejnyc' ? 'active' : ''}"
+              on:click={() => scrollToCard(0)}
+            >
+              ❓
+            </button>
+          
+            <div class="tooltip tooltip-clickable">
+              <ul>
                 <li>
-                    <button
+                  <button
                     type="button"
-                    on:click={() => scrollToCard(item.index)}
+                    on:click={() => scrollToCard(0)}
                     class="tooltip-button"
-                    >
-                    {item.label}
-                    </button>
+                  >
+                    What is EJNYC?
+                  </button>
                 </li>
-            {/each}
-          </ul>
+              </ul>
+            </div>
+          </div>
+      
+        <!-- Then search icon -->
+        <div class="nav-wrapper">
+            <button
+              class="nav-button {currentCardIndex === 1 ? 'active' : ''}"
+              on:click={() => scrollToCard(1)}
+            >
+              🔍
+            </button>
+          
+            <div class="tooltip tooltip-clickable">
+              <ul>
+                <li>
+                  <button
+                    type="button"
+                    on:click={() => scrollToCard(1)}
+                    class="tooltip-button"
+                  >
+                    Find my address
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+      
+        <!-- Then the rest of the sections -->
+        {#each navSections as section}
+          <div class="nav-wrapper">
+            <button
+              class="nav-button {cards[currentCardIndex]?.sectionId === section.sectionId ? 'active' : ''}"
+              on:click={() => scrollToCard(section.iconIndex)}
+            >
+            {#if section.sectionId === "ejnyc"}
+                ❓
+              {:else if section.sectionId === "resources"}
+                🌳
+              {:else if section.sectionId === "air"}
+                🏭
+              {:else if section.sectionId === "hazards"}
+                ⚠️
+              {:else if section.sectionId === "housing"}
+                🏠
+              {:else if section.sectionId === "water"}
+                💧
+              {:else if section.sectionId === "climate"}
+                🔥
+              {:else}
+                📍
+              {/if}
+            </button>
+      
+            <!-- Tooltip -->
+            <div class="tooltip tooltip-clickable">
+              <ul>
+                {#each section.items as item}
+                  <li>
+                    <button
+                      type="button"
+                      on:click={() => scrollToCard(item.index)}
+                      class="tooltip-button"
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+            </div>
+          </div>
+        {/each}
+      </div>
+      
+
+      <!-- Sidebar with stories and search -->
+      <div class="sidebar">
+        <div class="stories">
+          {#each cards as card, i}
+            <div
+              class="story-card"
+              use:observeCard={i}
+              class:selected={i === currentCardIndex}
+            >
+              {#if card.type === "search"}
+                <form on:submit|preventDefault={handleSubmit} class="search-bar">
+                  <input
+                    type="text"
+                    bind:value={address}
+                    placeholder="Enter your address"
+                  />
+                  <button type="submit">Go</button>
+                </form>
+                {#if zipError}
+                    <p style="color: red; margin-top: 0.25rem; margin-bottom: 0rem; font-size: 0.8rem; font-weight:800; font-style:italic">{zipError}</p>
+                {/if}
+              {:else}
+                <h2>{card.title}</h2>
+                <p>{card.content}</p>
+                <ul>
+                    {#each card.subsections as sub}
+                      <li>{sub}</li>
+                    {/each}
+                </ul>
+              {/if}
+            </div>
+          {/each}
         </div>
       </div>
-    {/each}
-  </div>
-  
-
-  <!-- Sidebar with stories and search -->
-  <div class="sidebar">
-    <div class="stories">
-      {#each cards as card, i}
-        <div
-          class="story-card"
-          use:observeCard={i}
-          class:selected={i === currentCardIndex}
-        >
-          {#if card.type === "search"}
-            <form on:submit|preventDefault={handleSubmit} class="search-bar">
-              <input
-                type="text"
-                bind:value={address}
-                placeholder="Enter your address"
-              />
-              <button type="submit">Go</button>
-            </form>
-            {#if zipError}
-                <p style="color: red; margin-top: 0.25rem; margin-bottom: 0rem; font-size: 0.8rem; font-weight:800; font-style:italic">{zipError}</p>
-            {/if}
-          {:else}
-            <h2>{card.title}</h2>
-            <p>{card.content}</p>
-            <ul>
-                {#each card.subsections as sub}
-                  <li>{sub}</li>
-                {/each}
-            </ul>
-          {/if}
-        </div>
-      {/each}
-    </div>
-  </div>
-</div>
+{/if}
 
   <style>
     /* Prevent body scrolling */
@@ -747,11 +795,11 @@
     .navbar {
         position: fixed;
         left: 0;
-        top: 50%;
+        top: 45%;
         transform: translateY(-50%);
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.75rem;
         padding: 1rem;
         z-index: 2;
     }
@@ -811,7 +859,7 @@
         color: #222;
     }
 
-    :global(body.light) {
+    /* :global(body.light) {
         background: #f9f9f9;
         color: #111;
     }
@@ -819,7 +867,7 @@
     :global(body.dark) {
         background: #111;
         color: #eee;
-    }
+    } */
 
     .sidebar {
         background: var(--sidebar-bg);
@@ -831,7 +879,7 @@
     }
 
     /* Set defaults for both modes */
-    :global(.light) {
+    /* :global(.light) {
         --card-bg: #ffffff;
         --card-text: #222;
         --toggle-bg: black;
@@ -841,10 +889,17 @@
         --card-bg: #2a2a2a;
         --card-text: #eee;
         --toggle-bg: white;
+    } */
+
+    /* SETS THE COLOR FOR THE CARDS */
+    :global(html) {
+    --card-bg: #ffffff;
+    --card-text: #222;
+    --toggle-bg: black;
     }
 
     /* Style the toggle button */
-    .theme-toggle {
+    /* .theme-toggle {
         position: fixed;
         top: 1rem;
         left: 1rem;
@@ -860,7 +915,7 @@
         justify-content: center;
         cursor: pointer;
         transition: background 0.3s ease, border-color 0.3s ease;
-    }
+    } */
 
     .tooltip.tooltip-clickable {
         left: 3rem;
@@ -897,7 +952,7 @@
         font: inherit;
         color: inherit;
         cursor: pointer;
-        padding: 0.2rem 0;
+        padding: 0.3rem 0;
         width: 100%;
         text-align: left;
     }
