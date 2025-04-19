@@ -16,6 +16,7 @@
     let nycZipCodes = new Set();
     let zipError = "";
     let stylesLoaded = true;
+    let ejnycOpacity = 0.4;
 
     // Store initial view for reset
     let initialView = {
@@ -425,6 +426,41 @@
         }, 'bottom-left');
 
         map.on('load', () => {
+
+            console.log('Map loaded: Adding EJNYC layer');
+            map.addSource('ejnyc', {
+              type: 'geojson',
+              data: '/src/data/ejnyc_areas_wgs84.json'
+            });
+
+            map.addLayer({
+              id: 'ejnyc-fill',
+              type: 'fill',
+              source: 'ejnyc',
+              // layout: {
+              //   visibility: 'visible' // remove this later
+              // },
+              paint: {
+                'fill-color': '#9b59b6', // purple for now
+                'fill-opacity': ejnycOpacity
+              },
+              filter: ['==', ['get', 'DAC_Desig'], 'Designated as DAC']
+            });
+
+            map.addLayer({
+              id: 'ejnyc-outline',
+              type: 'line',
+              source: 'ejnyc',
+              paint: {
+                'line-color': '#6d348e',
+                'line-opacity': ejnycOpacity
+              },
+              filter: ['==', ['get', 'DAC_Desig'], 'Designated as DAC']
+            });
+            
+            map.setLayoutProperty('ejnyc-fill', 'visibility', 'visible');
+            map.setLayoutProperty('ejnyc-outline', 'visibility', 'visible');
+
             map.addSource('redlining', {
                 type: 'geojson',
                 data: redliningData
@@ -487,6 +523,18 @@
             map.setLayoutProperty('redlining-outline', 'visibility', 'none');
         });
     });
+
+    let showEJNYC = true;
+
+    $: if (map) {
+      map.setLayoutProperty('ejnyc-fill', 'visibility', showEJNYC ? 'visible' : 'none');
+      map.setLayoutProperty('ejnyc-outline', 'visibility', showEJNYC ? 'visible' : 'none');
+    }
+
+    $: if (map) {
+      map.setPaintProperty('ejnyc-fill', 'fill-opacity', ejnycOpacity);
+      map.setPaintProperty('ejnyc-outline', 'line-opacity', ejnycOpacity);
+    }
 
     $: if (map && cards[currentCardIndex]?.mapView) {
         const view = cards[currentCardIndex].mapView;
@@ -556,9 +604,26 @@
             {theme === 'dark' ? '🌙': '☀️'}
         </button> -->
 
+        <!-- <button class="toggle-ejnyc" on:click={() => showEJNYC = !showEJNYC}>
+          {showEJNYC ? 'Hide EJ Areas' : 'Show EJ Areas'}
+        </button> -->
+
+        <div class="opacity-slider">
+          <label for="ejnycOpacity">EJNYC Overlay Opacity</label>
+          <input
+            type="range"
+            id="ejnycOpacity"
+            min="0"
+            max="1"
+            step="0.05"
+            bind:value={ejnycOpacity}
+          />
+        </div>
+
       <!-- Left-side vertical navigation bar -->
       <div class="navbar">
         <!-- Intro icon FIRST -->
+
         <div class="nav-wrapper">
             <button
               class="nav-button {cards[currentCardIndex]?.sectionId === 'ejnyc' ? 'active' : ''}"
@@ -916,6 +981,39 @@
         cursor: pointer;
         transition: background 0.3s ease, border-color 0.3s ease;
     } */
+
+    /* .toggle-ejnyc {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 10;
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    } */
+
+    .opacity-slider {
+      width: 10%;
+      position: fixed;
+      top: 1rem;
+      right: 7.5%;
+      z-index: 10;
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .opacity-slider input[type="range"] {
+      width: 95%;
+      margin: 0 auto;
+    }
 
     .tooltip.tooltip-clickable {
         left: 3rem;
