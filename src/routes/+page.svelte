@@ -6,6 +6,7 @@
     import Papa from 'papaparse';
     import redliningData from '/src/data/redlining_all_boroughs.json';
     import driData from '/src/data/nta_dri_merged.json';
+    import dacData from '/src/data/ejnyc_areas_wgs84.json';
     import * as turf from '@turf/turf';
 
 
@@ -544,7 +545,7 @@
             console.log('Map loaded: Adding EJNYC layer');
             map.addSource('ejnyc', {
               type: 'geojson',
-              data: '/src/data/ejnyc_areas_wgs84.json'
+              data: dacData
             });
 
             map.addLayer({
