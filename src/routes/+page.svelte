@@ -149,7 +149,7 @@
               <li>Where to focus public health programs</li>
             </ul>
 
-            <p>Use the slider to show or hide these areas on the map.</p>
+            <p>Adjust the slider to show or hide these areas on the map.</p>
             `
         },
         { type: "search" },
@@ -450,7 +450,7 @@
 
         map = new mapboxgl.Map({
             container: mapContainer,
-            style: 'mapbox://styles/mapbox/streets-v11',
+            style: 'mapbox://styles/jbonner4/cm9rvo9ct008l01qs3f4215ax',
             center: initialView.center,
             zoom: initialView.zoom,
             dragRotate: true,
@@ -556,7 +556,7 @@
               //   visibility: 'visible' // remove this later
               // },
               paint: {
-                'fill-color': '#9b59b6', // purple for now
+                'fill-color': '#6a9e4d', // purple for now
                 'fill-opacity': ejnycOpacity
               },
               filter: ['==', ['get', 'DAC_Desig'], 'Designated as DAC']
@@ -567,7 +567,7 @@
               type: 'line',
               source: 'ejnyc',
               paint: {
-                'line-color': '#6d348e',
+                'line-color': '#6a9e4d',
                 'line-opacity': ejnycOpacity
               },
               filter: ['==', ['get', 'DAC_Desig'], 'Designated as DAC']
@@ -776,7 +776,7 @@
                 <li>
                   <button
                     type="button"
-                    on:click={() => scrollToCard(1)}
+                    on:click={() => scrollToCard(3)}
                     class="tooltip-button"
                   >
                     Find my address
@@ -953,7 +953,7 @@
     }
 
     .search-bar input {
-      font-family: 'Libre Franklin', system-ui, sans-serif;
+      font-family: 'Host Grotesk', system-ui, sans-serif;
       flex: 1;
       padding: 0.5rem;
       border-radius: 4px;
@@ -961,7 +961,7 @@
     }
 
     .search-bar button {
-        font-family: 'Libre Franklin', system-ui, sans-serif;
+        font-family: 'Host Grotesk', system-ui, sans-serif;
         font-weight: 900;
       padding: 0.5rem 1rem;
       background: black;
@@ -1047,7 +1047,7 @@
     }
 
     :global(body) {
-        font-family: 'Libre Franklin', system-ui, sans-serif;
+        font-family: 'Host Grotesk', system-ui, sans-serif;
         overflow: hidden;
         margin: 0;
         padding: 0;
@@ -1151,7 +1151,7 @@
         top: 50%;
         transform: translateY(-50%);
         background: transparent; /* removed background */
-        color: white;
+        color: black;
         padding: 0;
         font-size: 0.8rem;
         opacity: 0;
