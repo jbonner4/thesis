@@ -6,6 +6,8 @@
     import Papa from 'papaparse';
     import redliningData from '/src/data/redlining_all_boroughs.json';
     import driData from '/src/data/nta_dri_merged.json';
+    import * as turf from '@turf/turf';
+
 
   
     let address = "";
@@ -17,6 +19,10 @@
     let zipError = "";
     let stylesLoaded = true;
     let ejnycOpacity = 0.4;
+    let selectedEJArea = null;
+    let ejnycPopup = null;
+
+
 
     // Store initial view for reset
     let initialView = {
@@ -37,6 +43,10 @@
           duration: 1000
         });
       }
+    }
+
+    function closeEJNYCInfo() {
+      selectedEJArea = null;
     }
 
     async function geocodeAddress(query) {
@@ -64,12 +74,82 @@
 
     // New: list of all story steps including the search bar
     let cards = [
+      {
+          sectionId: "ejnyc",
+          type: "intro",
+          label: "What is EJNYC?",
+          title: "What is EJNYC?",
+          mapView: {
+            center: [-74.006, 40.7128], // NYC default view
+            zoom: 10
+          },
+          content: `
+            <p>The EJNYC Report highlights places in New York City where people face more pollution, climate risks, or other environmental issues—<strong>especially in neighborhoods already dealing with social or economic challenges</strong>.</p>
+
+            <p>These places are called <strong>Environmental Justice (EJ) Areas, and have:</strong>.</p>
+
+            <ul>
+              <li>at least one <em>environmental problem</em> (like poor air quality, flooding, or not enough green space)</li>
+              <li>at least one <em>social vulnerability</em> (like high poverty or many people with limited English)</li>
+            </ul>
+
+            <p>NYC uses this report to help make fairer decisions about health, planning, and climate action.</p>
+
+            <p><a href="https://climate.cityofnewyork.us/topic/environmental-justice/" target="_blank">Read the full EJNYC report (PDF)</a></p>
+          `
+        },
         {
-            sectionId: "ejnyc",
-            type: "intro",
-            label: "What is EJNYC?",
-            title: "What is the EJNYC Report?",
-            content: "This report identifies NYC areas facing elevated environmental and health risks due to social and economic inequality. These are known as Environmental Justice Areas, and they are mapped and tracked by the city. Press the x button at any time to toggle the overlay showing EJ areas."
+          sectionId: "ejnyc",
+          type: "subsection",
+          label: "What are DACs?",
+          title: "What Are Disadvantaged Communities (DACs)?",
+          mapView: {
+            center: [-75.3, 42.8], // New York State view
+            zoom: 6.1
+          },
+          content: `
+            <p>New York State also identifies <strong>Disadvantaged Communities (DACs)</strong>—places that are at greater risk from pollution or climate change <i>and</i> also face health or social burdens.</p>
+
+            <p>This comes from the <strong>CLCPA law</strong>, which says at least 35% of state climate funding must go to DACs.</p>
+
+            <p>DACs are chosen using 45 data points, grouped into:</p>
+            <ul>
+              <li><strong>Environmental burdens</strong> (like toxic sites or air pollution)</li>
+              <li><strong>Health and population factors</strong> (like high asthma rates or low incomes)</li>
+            </ul>
+
+            <p><a href="https://climate.ny.gov/Resources/Climate-Justice-Working-Group" target="_blank">Learn more about DACs on NY State's climate site</a></p>
+
+            <p>The map shows DACs across all of New York State. Next, we'll zoom in on NYC.</p>
+              `
+        },
+        {
+          sectionId: "ejnyc",
+          type: "subsection",
+          label: "What are EJ Areas?",
+          title: "Zooming into NYC: Environmental Justice Areas",
+          mapView: {
+            center: [-74.006, 40.7128], // NYC default view
+            zoom: 10
+          },
+          content: `
+            <p>NYC's <strong>EJ Areas</strong> are based on the state's DAC designations.</p>
+
+            <p>To be an EJ Area in NYC, a neighborhood must:</p>
+            <ul>
+              <li>Face an <strong>environmental issue</strong> (like pollution or flood risk)</li>
+              <li>And have <strong>vulnerable populations</strong> (like people with low income or barriers to healthcare)</li>
+            </ul>
+
+            <p>NYC uses this to guide:</p>
+            <ul>
+              <li>Where to invest in climate upgrades</li>
+              <li>Where to improve green space or housing</li>
+              <li>Where to focus public health programs</li>
+            </ul>
+
+            <p>Use the slider to show or hide these areas on the map.</p>
+            `
         },
         { type: "search" },
 
@@ -404,6 +484,40 @@
                 map.dragRotate.disable();
             }
         });
+        
+        // map.on('click', 'ejnyc-fill', (e) => {
+        //   const properties = e.features[0].properties;
+        //   selectedEJArea = properties;
+        // });
+
+        // map.on('click', 'ejnyc-fill', (e) => {
+        //     const feature = e.features[0];
+        //     const props = feature.properties;
+
+        //     // If popup already exists, remove it
+        //     if (ejnycPopup) ejnycPopup.remove();
+
+        //     // Get centroid of the polygon
+        //     const coordinates = turf.centroid(feature).geometry.coordinates;
+
+        //     // Create plain language HTML content
+        //     const content = `
+        //       <div style="max-width: 250px; font-size: 0.85rem;">
+        //         <strong>${props.NTAName}</strong><br/>
+        //         <strong>Borough:</strong> ${props.BoroName}<br/>
+        //         <strong>Status:</strong> ${props.DAC_Desig}<br/>
+        //         <strong>Income Level:</strong> ${props.Income}<br/>
+        //         <strong>Race/Ethnicity:</strong> ${props.RaceEth}
+        //       </div>
+        //     `;
+
+        //     // Create and show the popup
+        //     ejnycPopup = new mapboxgl.Popup({ closeOnClick: true, offset: 15 })
+        //       .setLngLat(coordinates)
+        //       .setHTML(content)
+        //       .addTo(map);
+        //   });
+
 
         // Add navigation control with custom positioning
         map.addControl(new mapboxgl.NavigationControl(), 'bottom-left');
@@ -650,7 +764,7 @@
         <!-- Then search icon -->
         <div class="nav-wrapper">
             <button
-              class="nav-button {currentCardIndex === 1 ? 'active' : ''}"
+              class="nav-button {currentCardIndex === 3 ? 'active' : ''}"
               on:click={() => scrollToCard(1)}
             >
               🔍
@@ -741,7 +855,7 @@
                 {/if}
               {:else}
                 <h2>{card.title}</h2>
-                <p>{card.content}</p>
+                <p>{@html card.content}</p>
                 <ul>
                     {#each card.subsections as sub}
                       <li>{sub}</li>
@@ -752,6 +866,22 @@
           {/each}
         </div>
       </div>
+
+      <!-- {#if selectedEJArea}
+        <div class="ejnyc-popup">
+          <button class="popup-close" on:click={closeEJNYCInfo}>×</button>
+          <h3>Environmental Justice Area</h3>
+          <ul>
+            <li><strong>Name:</strong> {selectedEJArea.NTAName}</li>
+            <li><strong>Borough:</strong> {selectedEJArea.BoroName}</li>
+            <li><strong>Status:</strong> {selectedEJArea.DAC_Desig}</li>
+            <li><strong>Income Level:</strong> {selectedEJArea.Income}</li>
+            <li><strong>Race/Ethnicity:</strong> {selectedEJArea.RaceEth}</li>
+            <!-- Add any others you'd like -->
+          <!-- </ul>
+        </div>
+      {/if} -->
+
 {/if}
 
   <style>
@@ -841,7 +971,7 @@
     }
 
     .story-card {
-      margin-top: 45vh;
+      margin-top: 10rem;
       margin-bottom: 45vh;
       padding: 1rem;
       background: white;
@@ -998,7 +1128,7 @@
       width: 10%;
       position: fixed;
       top: 1rem;
-      right: 7.5%;
+      left: 1rem;
       z-index: 10;
       background: white;
       padding: 1rem;
@@ -1062,6 +1192,30 @@
     :global(.light) .tooltip-button:focus {
         outline: 2px solid black;
     }
+
+    /* .ejnyc-popup {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: white;
+      color: black;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      max-width: 300px;
+      z-index: 4;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.6rem;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+    } */
 
   </style>
   
