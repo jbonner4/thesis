@@ -766,6 +766,7 @@
             <button
               class="nav-button {cards[currentCardIndex]?.sectionId === 'ejnyc' ? 'active' : ''}"
               on:click={() => scrollToCard(introIndex)}
+              data-color="orange"
             >
               <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140.29 216">
                 <defs>
@@ -801,6 +802,7 @@
             <button
               class="nav-button {currentCardIndex === 3 ? 'active' : ''}"
               on:click={() => scrollToCard(searchIndex)}
+              data-color="black"
             >
               <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216 216">
                 <defs>
@@ -837,6 +839,15 @@
             <button
               class="nav-button {cards[currentCardIndex]?.sectionId === section.sectionId ? 'active' : ''}"
               on:click={() => scrollToCard(section.iconIndex)}
+              data-color={
+                section.sectionId === "resources" ? "green" :
+                section.sectionId === "air" ? "brown" :
+                section.sectionId === "hazards" ? "yellow" :
+                section.sectionId === "housing" ? "gray" :
+                section.sectionId === "water" ? "blue" :
+                section.sectionId === "climate" ? "red-orange" :
+                "black"
+              }
             >
             {#if section.sectionId === "ejnyc"}
                 <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140.29 216">
@@ -1156,47 +1167,57 @@
     }
 
     /* Hover/active colors by section */
-    .nav-button[sectionId="resources"]:hover,
-    .nav-button[sectionId="resources"].active {
+    .nav-button[data-color="green"]:hover,
+    .nav-button[data-color="green"].active {
       color: #2ecc71; /* green */
     }
 
-    .nav-button[sectionId="air"]:hover,
-    .nav-button[sectionId="air"].active {
+    .nav-button[data-color="brown"]:hover,
+    .nav-button[data-color="brown"].active {
       color: #8e5a2b; /* brown */
     }
 
-    .nav-button[sectionId="hazards"]:hover,
-    .nav-button[sectionId="hazards"].active {
+    .nav-button[data-color="yellow"]:hover,
+    .nav-button[data-color="yellow"].active {
       color: #f1c40f; /* yellow */
     }
 
-    .nav-button[sectionId="housing"]:hover,
-    .nav-button[sectionId="housing"].active {
+    .nav-button[data-color="gray"]:hover,
+    .nav-button[data-color="gray"].active {
       color: #7f8c8d; /* gray */
     }
 
-    .nav-button[sectionId="water"]:hover,
-    .nav-button[sectionId="water"].active {
+    .nav-button[data-color="blue"]:hover,
+    .nav-button[data-color="blue"].active {
       color: #3498db; /* blue */
     }
 
-    .nav-button[sectionId="climate"]:hover,
-    .nav-button[sectionId="climate"].active {
+    .nav-button[data-color="red-orange"]:hover,
+    .nav-button[data-color="red-orange"].active {
       color: #e74c3c; /* red-orange */
     }
 
-    .nav-button[sectionId="ejnyc"]:hover,
-    .nav-button[sectionId="ejnyc"].active {
+    .nav-button[data-color="orange"]:hover,
+    .nav-button[data-color="orange"].active {
       color: orange;
     }
 
-    .nav-button[sectionId="search"]:hover,
-    .nav-button[sectionId="search"].active {
+    .nav-button[data-color="black"]:hover,
+    .nav-button[data-color="black"].active {
       color: black;
     }
 
     .nav-button:hover {
+      width: 2.5rem;
+      height: 2.5rem;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    .tooltip:hover ~ .nav-button,
+    .tooltip:hover + .nav-button,
+    .tooltip:has(:hover) + .nav-button {
+      color: inherit;
       width: 2.5rem;
       height: 2.5rem;
       padding-top: 2rem;
@@ -1231,9 +1252,42 @@
         transition: opacity 0.2s ease;
     }
 
-    .nav-button:hover + .tooltip {
-    /* .tooltip:hover { */
-        opacity: 1;
+    /* Reveal tooltip on hover of nav-wrapper */
+    .nav-wrapper:hover .tooltip {
+      opacity: 1;
+    }
+
+    /* Tooltip color matching */
+    .nav-wrapper .nav-button[data-color="green"] + .tooltip {
+      color: #2ecc71;
+    }
+
+    .nav-wrapper .nav-button[data-color="brown"] + .tooltip {
+      color: #8e5a2b;
+    }
+
+    .nav-wrapper .nav-button[data-color="yellow"] + .tooltip {
+      color: #f1c40f;
+    }
+
+    .nav-wrapper .nav-button[data-color="gray"] + .tooltip {
+      color: #7f8c8d;
+    }
+
+    .nav-wrapper .nav-button[data-color="blue"] + .tooltip {
+      color: #3498db;
+    }
+
+    .nav-wrapper .nav-button[data-color="red-orange"] + .tooltip {
+      color: #e67e22;
+    }
+
+    .nav-wrapper .nav-button[data-color="orange"] + .tooltip {
+      color: #e67e22;
+    }
+
+    .nav-wrapper .nav-button[data-color="black"] + .tooltip {
+      color: #111;
     }
 
     :global(body) {
