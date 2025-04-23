@@ -33,6 +33,8 @@
       bearing: 0
     };
 
+    let userAddress=null;
+
     // Function to reset map view
     function resetMapView() {
       if (map) {
@@ -81,8 +83,8 @@
           label: "What is EJNYC?",
           title: "What is EJNYC?",
           mapView: {
-            center: [-74.006, 40.7128], // NYC default view
-            zoom: 10
+            center: initialView.center, // NYC default view
+            zoom: initialView.zoom
           },
           content: `
             <p>New York City's 2024 <i>EJNYC Report</i> highlights places in New York City where people face more pollution, climate risks, or other environmental issues—<strong>especially in neighborhoods already dealing with social or economic challenges</strong>.</p>
@@ -130,8 +132,8 @@
           label: "What are EJ Areas?",
           title: "Zooming into NYC: Environmental Justice Areas",
           mapView: {
-            center: [-74.006, 40.7128], // NYC default view
-            zoom: 10
+            center: initialView.center, // NYC default view
+            zoom: initialView.zoom
           },
           content: `
             <p>NYC's <strong>EJ Areas</strong> cover around 44% of the city's census tracts, containing about 49% of its population.</p>
@@ -390,7 +392,7 @@
         console.log("Final ZIP:", zipCode);
         console.log("Used corrected location:", location.place_name);
 
-        initialView = {
+        userAddress = {
              center: [lng, lat],
              zoom: 13,
              pitch: 0,
@@ -415,7 +417,7 @@
             alert("Could not find that address.");
         }
 
-        setTimeout(() => scrollToCard(4), 300);
+        setTimeout(() => scrollToCard(getCardIndexByTitle("Access to Resources")), 500);
     };
 
 
@@ -424,6 +426,14 @@
         if (cards[index]) {
             cards[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+    }
+
+    function getCardIndexByTitle(title) {
+      return cards.findIndex(card => card.title === title);
+    }
+
+    function getCardIndexByType(type) {
+      return cards.findIndex(card => card.type === type);
     }
   
     onMount(async () => {
@@ -775,7 +785,7 @@
         <div class="nav-wrapper">
             <button
               class="nav-button {currentCardIndex === 3 ? 'active' : ''}"
-              on:click={() => scrollToCard(3)}
+              on:click={() => scrollToCard(getCardIndexByType("search"))}
             >
               🔍
             </button>
@@ -785,7 +795,7 @@
                 <li>
                   <button
                     type="button"
-                    on:click={() => scrollToCard(3)}
+                    on:click={() => scrollToCard(getCardIndexByType("search"))}
                     class="tooltip-button"
                   >
                     Find my address
@@ -982,7 +992,7 @@
     }
 
     .story-card {
-      margin-top: 10rem;
+      margin-top: 8rem;
       margin-bottom: 45vh;
       padding: 1rem;
       background: white;
