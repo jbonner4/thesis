@@ -27,7 +27,7 @@
 
     // Store initial view for reset
     let initialView = {
-      center: [-74.006, 40.7128],
+      center: [-73.9, 40.7128],
       zoom: 10,
       pitch: 0,
       bearing: 0
@@ -85,9 +85,9 @@
             zoom: 10
           },
           content: `
-            <p>The EJNYC Report highlights places in New York City where people face more pollution, climate risks, or other environmental issues—<strong>especially in neighborhoods already dealing with social or economic challenges</strong>.</p>
+            <p>New York City's 2024 <i>EJNYC Report</i> highlights places in New York City where people face more pollution, climate risks, or other environmental issues—<strong>especially in neighborhoods already dealing with social or economic challenges</strong>.</p>
 
-            <p>These places are called <strong>Environmental Justice (EJ) Areas, and have:</strong>.</p>
+            <p>These places are called <strong>Environmental Justice (EJ) Areas</strong>, and have:</p>
 
             <ul>
               <li>at least one <em>environmental problem</em> (like poor air quality, flooding, or not enough green space)</li>
@@ -109,7 +109,7 @@
             zoom: 6.1
           },
           content: `
-            <p>New York State also identifies <strong>Disadvantaged Communities (DACs)</strong>—places that are at greater risk from pollution or climate change <i>and</i> also face health or social burdens.</p>
+            <p>EJ Areas are based on New York State's <strong>Disadvantaged Community (DAC)</strong> designation—places that are at greater risk from pollution or climate change <i>and</i> also face health or social burdens.</p>
 
             <p>This comes from the <strong>CLCPA law</strong>, which says at least 35% of state climate funding must go to DACs.</p>
 
@@ -121,7 +121,7 @@
 
             <p><a href="https://climate.ny.gov/Resources/Climate-Justice-Working-Group" target="_blank">Learn more about DACs on NY State's climate site</a></p>
 
-            <p>The map shows DACs across all of New York State. Next, we'll zoom in on NYC.</p>
+            <p>The map shows DACs across all of New York State. Next, we'll zoom back in on the city.</p>
               `
         },
         {
@@ -134,22 +134,17 @@
             zoom: 10
           },
           content: `
-            <p>NYC's <strong>EJ Areas</strong> are based on the state's DAC designations.</p>
+            <p>NYC's <strong>EJ Areas</strong> cover around 44% of the city's census tracts, containing about 49% of its population.</p>
+            <p><i>Adjust the slider in the top left corner to show/hide EJ Areas</i></p>
 
-            <p>To be an EJ Area in NYC, a neighborhood must:</p>
-            <ul>
-              <li>Face an <strong>environmental issue</strong> (like pollution or flood risk)</li>
-              <li>And have <strong>vulnerable populations</strong> (like people with low income or barriers to healthcare)</li>
-            </ul>
-
-            <p>NYC uses this to guide:</p>
+            <p>The city government uses this to guide:</p>
             <ul>
               <li>Where to invest in climate upgrades</li>
               <li>Where to improve green space or housing</li>
               <li>Where to focus public health programs</li>
             </ul>
 
-            <p>Adjust the slider to show or hide these areas on the map.</p>
+            <p>This project explores various aspects of that report by pulling together data from city and state agencies, historical sources, and many others to help you, as a New York City resident, understand the ways that climate and environemtnal factors affect your area—and what might be done to mitigate them.</p>
             `
         },
         { type: "search" },
@@ -383,7 +378,7 @@
             zipCode = zipFeature?.text;
 
             if (!nycZipCodes.has(zipCode)) {
-                zipError = "Please enter an address within New York City.";
+                zipError = "Please enter an address within the 5 boroughs.";
                 return;
             }
         } else {
@@ -420,7 +415,7 @@
             alert("Could not find that address.");
         }
 
-        setTimeout(() => scrollToCard(1), 300);
+        setTimeout(() => scrollToCard(4), 300);
     };
 
 
@@ -708,6 +703,20 @@
         map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
         map.setPaintProperty('dri-layer', 'fill-opacity', 0);
     }
+
+    $: if (map) {
+    const label = cards[currentCardIndex]?.label;
+    const sectionId = cards[currentCardIndex]?.sectionId;
+
+    if (label === 'What are DACs?' && sectionId === 'ejnyc') {
+        map.setPaintProperty('ejnyc-fill', 'fill-opacity', 1.0);
+        map.setPaintProperty('ejnyc-outline', 'line-opacity', 1.0);
+    } else {
+        map.setPaintProperty('ejnyc-fill', 'fill-opacity', ejnycOpacity);
+        map.setPaintProperty('ejnyc-outline', 'line-opacity', ejnycOpacity);
+    }
+}
+
     
   </script>
 
@@ -766,7 +775,7 @@
         <div class="nav-wrapper">
             <button
               class="nav-button {currentCardIndex === 3 ? 'active' : ''}"
-              on:click={() => scrollToCard(1)}
+              on:click={() => scrollToCard(3)}
             >
               🔍
             </button>
@@ -843,11 +852,12 @@
               class:selected={i === currentCardIndex}
             >
               {#if card.type === "search"}
+                <h2>Enter your address to see insights specific to your area throughout the project:</h2>
                 <form on:submit|preventDefault={handleSubmit} class="search-bar">
                   <input
                     type="text"
                     bind:value={address}
-                    placeholder="Enter your address"
+                    placeholder="New York City Address..."
                   />
                   <button type="submit">Go</button>
                 </form>
