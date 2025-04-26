@@ -19,7 +19,7 @@
     let nycZipCodes = new Set();
     let zipError = "";
     let stylesLoaded = true;
-    let ejnycOpacity = 0.4;
+    let ejnycOpacity = 0.2;
     let selectedEJArea = null;
     let ejnycPopup = null;
 
@@ -295,14 +295,40 @@
             type: "intro",
             label: "Access to Resources",
             title: "Access to Resources",
-            content: "Intro content for Access to Resources."
+            content: `
+              <p><strong>Access to Resources</strong> means having nearby parks, safe transit, healthy food, and investment in your community—all essentials for health and opportunity. In many neighborhoods, especially Environmental Justice Areas, these resources are harder to reach.</p>
+
+              <p>This section explores how access is shaped by:<p>
+              <ul>
+
+                <li>Historical policies like redlining</li>
+                <li>Public infrastructure investments (or lack of them)</li>
+                <li>Availability of food, transit, and green space today</li>
+
+              </ul>
+              <p>Using historical maps, planning data, and resident insights, we connect past patterns of disinvestment to today's environmental challenges.</p>
+              <p>Understanding these patterns helps reveal where barriers still exist—and where change is most needed.</p>
+            `
         },
         {
             sectionId: "resources",
             type: "subsection",
-            label: "Subsection 1",
-            title: "Subsection 1",
-            content: "Placeholder content for Subsection 1."
+            label: "Redlining",
+            title: "Redlining: Mapping Disinvestment and Perpetuating Inequality",
+            content: `
+              <p>In the 1930s, the federal Home Owners' Loan Corporation (HOLC) created “residential security” maps to guide mortgage lending. Neighborhoods were graded in the following manner:<p>
+                <ul>
+                  <span style="color:#57f287"><strong>A</strong></span> — "Best"<br>
+                  <span style="color:#3498db"><strong>B</strong></span> — "Still Desireable"<br>
+                  <span style="color:#f1c40f"><strong>C</strong></span> — "Definitely Declining"<br>
+                  <span style="color:#e74c3c"><strong>D</strong></span> — "Hazardous"
+                </ul>
+            <p>Areas with high Black, immigrant, and low-income populations were systematically given D grades—marked in red—restricting their access to home loans and public investment.</p>
+            <p>The legacy of redlining persists today, shaping patterns of wealth, housing conditions, and access to resources. Many of New York City's Environmental Justice Areas overlap with historically redlined neighborhoods.</p>
+            <p><strong>Your area received a __ rating. Adjust the EJNYC overlay to explore how these factors might overlap.</strong></p>
+            
+            <p><span style="font-size:12px;"><i>Redlining data provided by the <a href="https://dsl.richmond.edu/panorama/redlining/" target="_blank">Mapping Inequality Project</a> (University of Richmond, CC BY-NC 2.5 License).</i></span><p>
+            `
         },
         {
             sectionId: "resources",
@@ -808,7 +834,7 @@
     }
 
     // Fade in redlining in Subsection 1
-    $: if (map && cards[currentCardIndex]?.label === 'Subsection 1' && cards[currentCardIndex]?.sectionId === 'resources') {
+    $: if (map && cards[currentCardIndex]?.label === 'Redlining' && cards[currentCardIndex]?.sectionId === 'resources') {
         map.setLayoutProperty('redlining-fill', 'visibility', 'visible');
         map.setLayoutProperty('redlining-outline', 'visibility', 'visible');
         map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
@@ -842,7 +868,7 @@
     $: if (
         map &&
         !(
-        (cards[currentCardIndex]?.label === 'Subsection 1' && cards[currentCardIndex]?.sectionId === 'resources') ||
+        (cards[currentCardIndex]?.label === 'Redlining' && cards[currentCardIndex]?.sectionId === 'resources') ||
         (cards[currentCardIndex]?.label === 'Subsection 2' && cards[currentCardIndex]?.sectionId === 'resources')
         )
     ) {
