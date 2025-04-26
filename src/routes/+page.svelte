@@ -149,6 +149,144 @@
             <p>This project explores various aspects of that report by pulling together data from city and state agencies, historical sources, and many others to help you, as a New York City resident, understand the ways that climate and environemtnal factors affect your area—and what might be done to mitigate them.</p>
             `
         },
+        {
+          sectionId: "ejnyc",
+          type: "subsection",
+          label: "Navigation Overview",
+          title: "What's Covered in The EJNYC Report?",
+          content: `
+            <p>The EJNYC report is organized into six key focus areas that reflect how environmental and health risks affect different communities across NYC. Each section explores a specific category, helping users understand environmental injustice throughout the city. These categories are:</p>
+            <table class="section-table">
+              <tr>
+                <td class="icon-cell section-resources">
+                  <!-- Resources Icon -->
+                  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 159.64 216.07">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          fill:currentColor;
+                        }
+                      </style>
+                    </defs>
+                    <g id="Layer_1-2" data-name="Layer 1">
+                      <path class="cls-1" d="M158.82,178l-25.31-39.31c-2.19-3.4.25-7.88,4.3-7.88h8.26c4.16,0,6.58-4.7,4.16-8.08l-26.54-37.18c-2.42-3.38,0-8.08,4.16-8.08h0c4.16,0,6.58-4.7,4.16-8.08L83.98,2.14c-2.04-2.86-6.28-2.86-8.32,0L27.64,69.39c-2.42,3.38,0,8.08,4.16,8.08h0c4.16,0,6.58,4.7,4.16,8.08l-26.54,37.18c-2.42,3.38,0,8.08,4.16,8.08h8.26c4.05,0,6.49,4.48,4.3,7.88L.82,178c-2.19,3.4.25,7.88,4.3,7.88h45.56c2.82,0,5.11,2.29,5.11,5.11v19.97c0,2.82,2.29,5.11,5.11,5.11h37.82c2.82,0,5.11-2.29,5.11-5.11v-19.97c0-2.82,2.29-5.11,5.11-5.11h45.56c4.05,0,6.49-4.48,4.3-7.88Z"/>
+                    </g>
+                  </svg>
+                </td>
+                <td class="text-cell"><p><strong>Access to Resources:</strong><br> Measures how easily communities can reach parks, schools, supermarkets, and healthcare. It highlights inequities in the basic infrastructure needed to live a healthy life.</p></td>
+              </tr>
+
+              <tr>
+                <td class="icon-cell section-air">
+                  <!-- Air Icon -->
+                  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 199.78 216">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          fill:currentColor;
+                        }
+                      </style>
+                    </defs>
+                    <g id="Layer_1-2" data-name="Layer 1">
+                      <g>
+                        <path fill=currentColor d="M193.48,142.74l-34.84-21.63c-2.02-1.25-4.44-1.69-6.77-1.23l-83.11,16.62c-5.53,1.11-10.78-2.9-11.17-8.53l-3.03-43.71c-.34-4.91-4.42-8.71-9.34-8.71s-8.91,3.72-9.32,8.56l-4.8,55.7c-.25,2.94-1.88,5.59-4.39,7.15l-22.29,13.83c-2.75,1.71-4.42,4.71-4.42,7.95v37.9c0,5.17,4.19,9.36,9.36,9.36h179.19c5.17,0,9.36-4.19,9.36-9.36v-55.95c0-3.24-1.67-6.24-4.42-7.95Z"/>
+                        <path fill=currentColor d="M46.05,71.15c3.48.43,6.66-.65,9.02-2.64,1.58-1.33,3.86-1.52,5.71-.59.28.14.56.27.85.4,1.3.56,2.34,1.58,2.85,2.91,3.24,8.42,10.88,14.55,19.95,15.76,2.38.32,4.1,2.38,4.25,4.78,0,.02,0,.03,0,.05.84,12.78,11.87,22.47,24.66,21.63,5.14-.34,9.77-2.33,13.42-5.41,1.74-1.48,4.28-1.53,6.14-.19,3.49,2.52,7.86,3.88,12.49,3.58,8.57-.56,15.47-6.67,17.42-14.59.41-1.68,1.72-3.02,3.38-3.48,9.68-2.72,16.47-11.92,15.78-22.37-.18-2.69-.84-5.24-1.89-7.56-1.14-2.51.05-5.42,2.54-6.59,11.7-5.49,19.09-18.31,16.69-32.19C196.93,10.75,184.76.3,170.67,0c-8.5-.18-16.11,3.13-21.61,8.52-1.83,1.8-4.76,1.84-6.71.18-4.68-4-10.87-6.25-17.51-5.81-7.55.49-14.08,4.37-18.21,10.05-1.16,1.6-3.15,2.39-5.08,1.98-2.18-.46-4.46-.63-6.79-.48-10.9.71-19.7,8.31-22.44,18.27-.6,2.19-2.49,3.74-4.76,3.83-.16,0-.31.01-.47.02-5.9.39-10.88,3.82-13.5,8.68-.97,1.79-2.89,2.94-4.91,2.75-.61-.06-1.23-.07-1.86-.03-7.17.47-12.41,7.35-10.49,14.69,1.18,4.5,5.1,7.92,9.72,8.49Z"/>
+                      </g>
+                    </g>
+                  </svg>
+                </td>
+                <td class="text-cell"><p><strong>Exposure to Polluted Air:</strong><br> Identifies areas with higher levels of fine particulate matter (PM2.5) and asthma-related ER visits. It shows where air pollution most harms public health.</p></td>
+              </tr>
+
+              <tr>
+                <td class="icon-cell section-hazards">
+                  <!-- Hazard Icon -->
+                  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216 190.2">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          fill:currentColor;
+                        }
+                      </style>
+                    </defs>
+                    <g id="Layer_1-2" data-name="Layer 1">
+                      <path fill=currentColor d="M214.4,172.45L118.25,5.92c-4.55-7.89-15.94-7.89-20.49,0L1.6,172.45c-4.55,7.89,1.14,17.75,10.25,17.75h192.3c9.11,0,14.8-9.86,10.25-17.75ZM102.83,46.51h10.32c4.51,0,8.12,3.73,7.97,8.24l-2.33,69.97c-.14,4.3-3.67,7.71-7.97,7.71h-5.81c-4.31,0-7.84-3.42-7.97-7.73l-2.18-69.97c-.14-4.5,3.47-8.22,7.97-8.22ZM123.36,163.57c0,4.4-3.57,7.97-7.97,7.97h-14.78c-4.4,0-7.97-3.57-7.97-7.97v-12.63c0-4.4,3.57-7.97,7.97-7.97h14.78c4.4,0,7.97,3.57,7.97,7.97v12.63Z"/>
+                    </g>
+                  </svg>
+                </td>
+                <td class="text-cell"><p><strong>Exposure to Hazardous Materials:</strong><br> Tracks proximity to brownfields, waste transfer stations, and cleanup sites. It highlights how industrial hazards are concentrated in vulnerable areas.</p></td>
+              </tr>
+
+              <tr>
+                <td class="icon-cell section-housing">
+                  <!-- Housing Icon -->
+                  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 216 218.19">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          fill:currentColor;
+                        }
+                      </style>
+                    </defs>
+                    <g id="Layer_1-2" data-name="Layer 1">
+                      <path fill=currentColor d="M147.66,39.87V6c0-3.31-2.68-6-6-6h-55.1c-3.31,0-6,2.68-6,6v131.24c0,1.77-1.44,3.21-3.21,3.21h-1.89c-1.77,0-3.21-1.44-3.21-3.21v-56.91c0-1.77-1.44-3.21-3.21-3.21h-.71c-1.77,0-3.21-1.44-3.21-3.21v-.63c0-1.77-1.44-3.21-3.21-3.21h-1.11c-1.77,0-3.21-1.44-3.21-3.21v-.63c0-1.77-1.44-3.21-3.21-3.21h-.63c-1.77,0-3.21-1.44-3.21-3.21v-.63c0-1.77-1.44-3.21-3.21-3.21h0c-1.77,0-3.21-1.44-3.21-3.21v-.63c0-1.77-1.44-3.21-3.21-3.21h-9.57c-1.77,0-3.21,1.44-3.21,3.21v.63c0,1.77-1.44,3.21-3.21,3.21h0c-1.77,0-3.21,1.44-3.21,3.21v.63c0,1.77-1.44,3.21-3.21,3.21h-.63c-1.77,0-3.21,1.44-3.21,3.21v.63c0,1.77-1.44,3.21-3.21,3.21h-1.11c-1.77,0-3.21,1.44-3.21,3.21v.63c0,1.77-1.44,3.21-3.21,3.21h-.71c-1.77,0-3.21,1.44-3.21,3.21v131.87c0,3.31,2.68,6,6,6h204.01c3.31,0,6-2.68,6-6V19.72c0-4.49-4.75-7.39-8.75-5.33l-54.92,28.34c-2.14,1.1-4.68-.45-4.68-2.85Z"/>
+                    </g>
+                  </svg>
+                </td>
+                <td class="text-cell"><p><strong>Access to Safe and Healthy Housing:</strong><br> Evaluates housing risks like overcrowding, pests, and maintenance issues. This section focuses on how poor housing conditions affect health and stability.</p></td>
+              </tr>
+
+              <tr>
+                <td class="icon-cell section-water">
+                  <!-- Water Icon -->
+                  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 214.27 142.94">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          fill:currentColor;
+                        }
+                      </style>
+                    </defs>
+                    <g id="Layer_1-2" data-name="Layer 1">
+                      <g>
+                        <path fill=currentColor d="M200.73,81.93c-12.28-15.46-28.32-20.1-36.79-21.49-.29-.05-.57-.07-.84-.07h-10.89c-1.96,0-3.67,1.04-4.7,2.86-1.17,2.08-1.13,4.65.11,6.7l.09.16c5.89,9.8,14.33,31.29,4.59,64.88-.58,1.99-.2,4.15,1.01,5.76,1.06,1.41,2.62,2.21,4.28,2.21h49.99c2.68,0,4.98-2.09,5.47-4.97,2.11-12.48,3.32-36.36-12.32-56.05Z"/>
+                        <path fill=currentColor d="M148.68,83.79c-.89-2.7-2.17-5.27-3.87-7.55-5.22-7.02-8.59-18.01-8.59-30.36,0-21.2,9.9-38.39,22.12-38.39s22.12,17.19,22.12,38.39c0,4.08-.37,8.01-1.05,11.7-.23,1.27.44,2.52,1.62,3.05l.05.02c1.7.77,3.7-.25,4.03-2.09.74-4.08,1.13-8.39,1.13-12.86,0-25.24-12.57-45.71-28.07-45.71H28.07C12.57,0,0,20.46,0,45.71s12.57,45.71,28.07,45.71h119c1.85,0,3.24-1.74,2.79-3.53-.34-1.37-.74-2.74-1.18-4.1Z"/>
+                      </g>
+                    </g>
+                  </svg>
+                </td>
+                <td class="text-cell"><p><strong>Exposure to Polluted Water:</strong><br> Examines risks from sewer backups, outdated infrastructure, and combined sewer overflows. It highlights neighborhoods most impacted by water-related issues.</p></td>
+              </tr>
+
+              <tr>
+                <td class="icon-cell section-climate">
+                  <!-- Climate Icon -->
+                  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 214.18 201.7">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          fill:currentColor;
+                        }
+                      </style>
+                    </defs>
+                    <g id="Layer_1-2" data-name="Layer 1">
+                      <g>
+                        <path fill=currentColor d="M22,39.84c25.73-8.58,54.08-8.58,79.8,0l.74.25c16.04,5.34,32.88,8.02,49.73,8.02,16.85,0,33.7-2.67,49.74-8.02l.74-.25c8.75-2.92,13.48-12.39,10.56-21.14-2.92-8.75-12.38-13.48-21.14-10.56l-.73.24c-25.26,8.42-53.08,8.42-78.33,0l-.74-.25C79.83-2.71,43.98-2.71,11.43,8.14,2.68,11.06-2.06,20.52.86,29.27c2.92,8.76,12.38,13.49,21.14,10.57Z"/>
+                        <path fill=currentColor d="M192.18,84.94l-.73.24c-25.26,8.42-53.08,8.42-78.33,0l-.74-.25c-32.55-10.85-68.4-10.85-100.95,0-8.76,2.92-13.49,12.38-10.57,21.14,2.92,8.76,12.38,13.49,21.14,10.57,25.73-8.58,54.08-8.58,79.8,0l.74.25c16.04,5.34,32.88,8.02,49.73,8.02s33.7-2.67,49.74-8.02l.74-.25c8.75-2.92,13.48-12.39,10.56-21.14-2.92-8.75-12.38-13.48-21.14-10.56Z"/>
+                        <path fill=currentColor d="M192.18,161.74l-.73.24c-25.26,8.42-53.08,8.42-78.33,0l-.74-.25c-32.55-10.85-68.4-10.85-100.95,0-8.76,2.92-13.49,12.38-10.57,21.14,2.92,8.75,12.38,13.49,21.14,10.57,25.73-8.58,54.08-8.58,79.8,0l.74.25c16.04,5.34,32.88,8.02,49.73,8.02s33.7-2.67,49.74-8.02l.74-.25c8.75-2.92,13.48-12.39,10.56-21.14-2.92-8.75-12.38-13.48-21.14-10.56Z"/>
+                      </g>
+                    </g>
+                  </svg>
+                </td>
+                <td class="text-cell"><p><strong>Exposure to Climate Change:</strong><br> Focuses on neighborhoods at risk from heat waves, flooding, and sea level rise. It connects environmental threats to long-term community vulnerability.</p></td>
+              </tr>
+            </table>
+
+            <hr style="margin: 1rem 0;" />
+
+            <p><strong>Map Controls:</strong> Use the compass to rotate the map, the + and - buttons to zoom, and click the ↺ icon to reset the view to see the entire city.</p>
+          `
+        },
         { type: "search" },
 
         // Access to Resources
@@ -537,7 +675,7 @@
         resetButton.className = 'mapboxgl-ctrl-icon mapboxgl-ctrl-reset';
         resetButton.type = 'button';
         resetButton.setAttribute('aria-label', 'Reset view');
-        resetButton.innerHTML = '<span class="mapboxgl-ctrl-icon" aria-hidden="true"></span>';
+        resetButton.innerHTML = '↺';
         resetButton.addEventListener('click', resetMapView);
         
         const resetControl = document.createElement('div');
@@ -755,6 +893,7 @@
             max="1"
             step="0.05"
             bind:value={ejnycOpacity}
+            style="--value: {ejnycOpacity * 100}%"
           />
         </div>
 
@@ -984,7 +1123,29 @@
               class="story-card"
               use:observeCard={i}
               class:selected={i === currentCardIndex}
+              data-color={
+                card.sectionId === "resources" ? "green" :
+                card.sectionId === "air" ? "brown" :
+                card.sectionId === "hazards" ? "yellow" :
+                card.sectionId === "housing" ? "gray" :
+                card.sectionId === "water" ? "blue" :
+                card.sectionId === "climate" ? "red-orange" :
+                card.sectionId === "ejnyc" ? "orange" :
+                ""
+              }
             >
+              {#if card.sectionId && card.sectionId !== 'search'}
+                <div class="card-tab">{
+                  card.sectionId === 'ejnyc' ? 'Intro' :
+                  card.sectionId === 'resources' ? 'Access to Resources' :
+                  card.sectionId === 'air' ? 'Polluted Air' :
+                  card.sectionId === 'hazards' ? 'Hazardous Materials' :
+                  card.sectionId === 'housing' ? 'Access to Housing' :
+                  card.sectionId === 'water' ? 'Polluted Water' :
+                  card.sectionId === 'climate' ? 'Climate Change' :
+                  ''
+                }</div>
+              {/if}
               {#if card.type === "search"}
                 <h2>Enter your address to see insights specific to your area throughout the project:</h2>
                 <form on:submit|preventDefault={handleSubmit} class="search-bar">
@@ -1124,12 +1285,71 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
+    .card-tab {
+      position: absolute;
+      top: 0rem;
+      left: 1rem;
+      background-color: currentColor;
+      color: white;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: bold;
+      border-radius: 4px 4px 0 0;
+      transform: translateY(-100%);
+      z-index: 2;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .story-card {
+      position: relative; /* Needed to position tab inside */
+    }
+
+    .story-card[data-color="green"] .card-tab {
+      background-color: #2ecc71;
+    }
+
+    .story-card[data-color="brown"] .card-tab {
+      background-color: #8e5a2b;
+    }
+
+    .story-card[data-color="yellow"] .card-tab {
+      background-color: #f1c40f;
+    }
+
+    .story-card[data-color="gray"] .card-tab {
+      background-color: #7f8c8d;
+    }
+
+    .story-card[data-color="blue"] .card-tab {
+      background-color: #3498db;
+    }
+
+    .story-card[data-color="red-orange"] .card-tab {
+      background-color: #e74c3c;
+    }
+
+    .story-card[data-color="orange"] .card-tab {
+      background-color: orange;
+    }
+
+    /* .story-card[data-color="black"] .card-tab {
+      background-color: black;
+    } */
+
+
     /* Style for the reset button */
     :global(.mapboxgl-ctrl-reset) {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z'/%3E%3C/svg%3E");
-      background-size: 18px;
-      background-position: center;
-      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 0;
+      background: transparent;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
     }
 
     .navbar {
@@ -1139,7 +1359,7 @@
         transform: translateY(-50%);
         display: flex;
         flex-direction: column;
-        gap: 1.75rem;
+        gap: 2.5rem;
         padding: 1rem;
         z-index: 2;
     }
@@ -1214,16 +1434,6 @@
       padding-bottom: 2rem;
     }
 
-    .tooltip:hover ~ .nav-button,
-    .tooltip:hover + .nav-button,
-    .tooltip:has(:hover) + .nav-button {
-      color: inherit;
-      width: 2.5rem;
-      height: 2.5rem;
-      padding-top: 2rem;
-      padding-bottom: 2rem;
-    }
-
     /* .nav-button.active {
         background: black;
         color: white;
@@ -1279,7 +1489,7 @@
     }
 
     .nav-wrapper .nav-button[data-color="red-orange"] + .tooltip {
-      color: #e67e22;
+      color: #e74c3c;
     }
 
     .nav-wrapper .nav-button[data-color="orange"] + .tooltip {
@@ -1289,6 +1499,54 @@
     .nav-wrapper .nav-button[data-color="black"] + .tooltip {
       color: #111;
     }
+
+    /* .section-explainer {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    } */
+
+    :global(.section-table) {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0rem 0;
+    }
+
+    :global(.section-table tr) {
+      vertical-align: center;
+      padding: 0;
+    }
+
+    :global(.section-table td) {
+      padding: 0rem 0.5rem; /* reduce this further if needed */
+    }
+
+
+    :global(.icon-cell) {
+      width: 1.5rem;
+      vertical-align: center;
+      padding-right: 0.75rem;
+    }
+
+    :global(.icon-cell) svg {
+      width: 1rem;
+      height: 1rem;
+      fill: currentColor;
+    }
+
+    :global(.text-cell) {
+      font-size: 0.9rem;
+      padding-bottom: 0.25rem;
+    }
+
+    :global(.section-resources) { color: #2ecc71; }
+    :global(.section-air) { color: #8e5a2b; }
+    :global(.section-hazards) { color: #f1c40f; }
+    :global(.section-housing) { color: #7f8c8d; }
+    :global(.section-water) { color: #3498db; }
+    :global(.section-climate) { color: #e74c3c; }
+
+
 
     :global(body) {
         font-family: 'Host Grotesk', system-ui, sans-serif;
@@ -1383,11 +1641,35 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 0.5rem;
     }
 
     .opacity-slider input[type="range"] {
-      width: 95%;
-      margin: 0 auto;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(to right, rgba(106, 158, 77, var(--value)) var(--value), #ccc var(--value));
+      border: 1.5px solid #6a9e4d;
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .opacity-slider input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 0;
+      height: 0;
+      background: transparent;
+      border: none;
+    }
+
+    .opacity-slider input[type="range"]::-moz-range-thumb {
+      width: 0;
+      height: 0;
+      background: transparent;
+      border: none;
     }
 
     .tooltip.tooltip-clickable {
@@ -1434,9 +1716,9 @@
         text-decoration: underline;
     }
 
-    :global(.light) .tooltip-button:focus {
+    /* :global(.light) .tooltip-button:focus {
         outline: 2px solid black;
-    }
+    } */
 
     /* .ejnyc-popup {
       position: fixed;
