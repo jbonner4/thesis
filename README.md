@@ -3,7 +3,7 @@
 
 
 MYEJNYC is a web-based storytelling tool that highlights patterns of environmental injustice across New York City.  
-Built as part of my undergraduate honors thesis, it guides users through key findings from the 2024 Environmental Justice NYC (EJNYC) report, combining city data, historical context, and personal narratives.
+Built as part of my undergraduate honors thesis, it guides users through key findings from the 2024 Environmental Justice NYC (EJNYC) report and related ideas and narrativesgit add , combining city data, historical context, and personal narratives.
 
 The project aims to make complex environmental justice data accessible and engaging for residents, researchers, and advocates alike.
 

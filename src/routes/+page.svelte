@@ -379,7 +379,9 @@
             type: "subsection",
             label: "Subsection 2",
             title: "Subsection 2",
-            content: "Placeholder content for Subsection 2.",
+            content: `
+            Placeholder content for Subsection 2.
+            `
         },
 
         // Exposure to Polluted Air
@@ -388,23 +390,23 @@
             type: "intro",
             label: "Exposure to Polluted Air",
             title: "Exposure to Polluted Air",
-            content: "Intro content for Exposure to Polluted Air.",
+            content: `<i>This section is under construction ⚒️</i>`
         },
-        {
-            sectionId: "air",
-            type: "subsection",
-            label: "Subsection 1",
-            title: "Subsection 1",
-            content: "Placeholder content for Subsection 1."
-        },
-        {
-            sectionId: "air",
-            type: "subsection",
-            label: "Subsection 2",
-            title: "Subsection 2",
-            content: "Placeholder content for Subsection 2.",
-            mapView: { center: [-74.00, 40.73], zoom: 12.5 },
-        },
+        // {
+        //     sectionId: "air",
+        //     type: "subsection",
+        //     label: "Subsection 1",
+        //     title: "Subsection 1",
+        //     content: "Placeholder content for Subsection 1."
+        // },
+        // {
+        //     sectionId: "air",
+        //     type: "subsection",
+        //     label: "Subsection 2",
+        //     title: "Subsection 2",
+        //     content: "Placeholder content for Subsection 2.",
+        //     mapView: { center: [-74.00, 40.73], zoom: 12.5 },
+        // },
 
         // Exposure to Hazardous Materials
         {
@@ -412,23 +414,23 @@
             type: "intro",
             label: "Exposure to Hazardous Materials",
             title: "Exposure to Hazardous Materials",
-            content: "Intro content for hazardous materials exposure."
+            content: `<i>This section is under construction 🧰</i>`
         },
-        {
-            sectionId: "hazards",
-            type: "subsection",
-            label: "Subsection 1",
-            title: "Subsection 1",
-            content: "Placeholder content for Subsection 1."
-        },
-        {
-            sectionId: "hazards",
-            type: "subsection",
-            label: "Subsection 2",
-            title: "Subsection 2",
-            content: "Placeholder content for Subsection 2.",
-            mapView: { center: [-73.96, 40.76], zoom: 11.5 }
-        },
+        // {
+        //     sectionId: "hazards",
+        //     type: "subsection",
+        //     label: "Subsection 1",
+        //     title: "Subsection 1",
+        //     content: "Placeholder content for Subsection 1."
+        // },
+        // {
+        //     sectionId: "hazards",
+        //     type: "subsection",
+        //     label: "Subsection 2",
+        //     title: "Subsection 2",
+        //     content: "Placeholder content for Subsection 2.",
+        //     mapView: { center: [-73.96, 40.76], zoom: 11.5 }
+        // },
 
         // Access to Safe and Healthy Housing
         {
@@ -436,23 +438,23 @@
             type: "intro",
             label: "Access to Safe and Healthy Housing",
             title: "Access to Safe and Healthy Housing",
-            content: "Intro content for housing access and safety."
+            content: `<i>This section is under construction 🦺</i>`
         },
-        {
-            sectionId: "housing",
-            type: "subsection",
-            label: "Subsection 1",
-            title: "Subsection 1",
-            content: "Placeholder content for Subsection 1.",
-            mapView: { center: [-73.99, 40.71], zoom: 13 }
-        },
-        {
-            sectionId: "housing",
-            type: "subsection",
-            label: "Subsection 2",
-            title: "Subsection 2",
-            content: "Placeholder content for Subsection 2."
-        },
+        // {
+        //     sectionId: "housing",
+        //     type: "subsection",
+        //     label: "Subsection 1",
+        //     title: "Subsection 1",
+        //     content: "Placeholder content for Subsection 1.",
+        //     mapView: { center: [-73.99, 40.71], zoom: 13 }
+        // },
+        // {
+        //     sectionId: "housing",
+        //     type: "subsection",
+        //     label: "Subsection 2",
+        //     title: "Subsection 2",
+        //     content: "Placeholder content for Subsection 2."
+        // },
 
         // Exposure to Polluted Water
         {
@@ -460,22 +462,22 @@
             type: "intro",
             label: "Exposure to Polluted Water",
             title: "Exposure to Polluted Water",
-            content: "Intro content for polluted water exposure."
+            content: `<i>This section is under construction 🚧</i>`
         },
-        {
-            sectionId: "water",
-            type: "subsection",
-            label: "Subsection 1",
-            title: "Subsection 1",
-            content: "Placeholder content for Subsection 1."
-        },
-        {
-            sectionId: "water",
-            type: "subsection",
-            label: "Subsection 2",
-            title: "Subsection 2",
-            content: "Placeholder content for Subsection 2."
-        },
+        // {
+        //     sectionId: "water",
+        //     type: "subsection",
+        //     label: "Subsection 1",
+        //     title: "Subsection 1",
+        //     content: "Placeholder content for Subsection 1."
+        // },
+        // {
+        //     sectionId: "water",
+        //     type: "subsection",
+        //     label: "Subsection 2",
+        //     title: "Subsection 2",
+        //     content: "Placeholder content for Subsection 2."
+        // },
 
         // Exposure to Climate Change
         {
@@ -483,23 +485,23 @@
             type: "intro",
             label: "Exposure to Climate Change",
             title: "Exposure to Climate Change",
-            content: "Intro content for climate change vulnerability."
+            content: `<i>This section is under construction 🏗️</i>`
         },
-        {
-            sectionId: "climate",
-            type: "subsection",
-            label: "Subsection 1",
-            title: "Subsection 1",
-            content: "Placeholder content for Subsection 1.",
-            mapView: { center: [-73.92, 40.77], zoom: 12 }
-        },
-        {
-            sectionId: "climate",
-            type: "subsection",
-            label: "Subsection 2",
-            title: "Subsection 2",
-            content: "Placeholder content for Subsection 2."
-        }
+        // {
+        //     sectionId: "climate",
+        //     type: "subsection",
+        //     label: "Subsection 1",
+        //     title: "Subsection 1",
+        //     content: "Placeholder content for Subsection 1.",
+        //     mapView: { center: [-73.92, 40.77], zoom: 12 }
+        // },
+        // {
+        //     sectionId: "climate",
+        //     type: "subsection",
+        //     label: "Subsection 2",
+        //     title: "Subsection 2",
+        //     content: "Placeholder content for Subsection 2."
+        // }
     ];
 
         // Group cards by sectionId (excluding "search")
