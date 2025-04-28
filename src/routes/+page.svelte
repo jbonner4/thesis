@@ -22,6 +22,9 @@
     let ejnycOpacity = 0.2;
     let selectedEJArea = null;
     let ejnycPopup = null;
+    let location = null;
+    let userRedlineGrade = null;
+    let userRedlinedPolygon = null;
 
 
 
@@ -60,15 +63,55 @@
             const data = await res.json();
 
             if (data.features && data.features.length > 0) {
-            return data.features[0]; // ✅ return the full feature
+                const feature = data.features[0];
+                location = { lat: feature.center[1], lng: feature.center[0] };
+
+                // Find user's redlining grade
+                const userPoint = turf.point([location.lng, location.lat]);
+                for (const redlineFeature of redliningData.features) {
+                    if (turf.booleanPointInPolygon(userPoint, redlineFeature)) {
+                        userRedlineGrade = redlineFeature.properties.grade || redlineFeature.properties.HOLC_GRAD; // Adjust field name if needed
+                        userRedlinedPolygon = redlineFeature;
+                        break;
+                    }
+                }
+
+                // Optional: Highlight the user's redlining polygon
+                if (userRedlinedPolygon && map) {
+                    if (map.getSource('user-redline-area')) {
+                        map.getSource('user-redline-area').setData(userRedlinedPolygon);
+                    } else {
+                        map.addSource('user-redline-area', {
+                            type: 'geojson',
+                            data: userRedlinedPolygon
+                        });
+                        map.addLayer({
+                            id: 'user-redline-highlight',
+                            type: 'line',
+                            source: 'user-redline-area',
+                            layout:{
+                                visibility:'none'
+                            },
+                            paint: {
+                                'line-color': gradeColor(userRedlineGrade),
+                                'line-width': 3
+                            }
+                        });
+                    }
+                }
+
+                
+
+                return feature;
             } else {
-            throw new Error("No results found");
+                throw new Error("No results found");
             }
         } catch (err) {
             console.error("Geocoding error:", err);
             return null;
         }
     }
+
 
 
     // function toggleTheme() {
@@ -318,14 +361,15 @@
             content: `
               <p>In the 1930s, the federal Home Owners' Loan Corporation (HOLC) created “residential security” maps to guide mortgage lending. Neighborhoods were graded in the following manner:<p>
                 <ul>
-                  <span style="color:#57f287"><strong>A</strong></span> — "Best"<br>
+                  <span style="color:#30ab30"><strong>A</strong></span> — "Best"<br>
                   <span style="color:#3498db"><strong>B</strong></span> — "Still Desireable"<br>
                   <span style="color:#f1c40f"><strong>C</strong></span> — "Definitely Declining"<br>
                   <span style="color:#e74c3c"><strong>D</strong></span> — "Hazardous"
                 </ul>
             <p>Areas with high Black, immigrant, and low-income populations were systematically given D grades—marked in red—restricting their access to home loans and public investment.</p>
             <p>The legacy of redlining persists today, shaping patterns of wealth, housing conditions, and access to resources. Many of New York City's Environmental Justice Areas overlap with historically redlined neighborhoods.</p>
-            <p><strong>Your area received a __ rating. Adjust the EJNYC overlay to explore how these factors might overlap.</strong></p>
+            <p><strong>Your area received a {{userRedlineGrade}} rating. Adjust the EJNYC overlay to explore how these factors might overlap.</strong></p>
+
             
             <p><span style="font-size:12px;"><i>Redlining data provided by the <a href="https://dsl.richmond.edu/panorama/redlining/" target="_blank">Mapping Inequality Project</a> (University of Richmond, CC BY-NC 2.5 License).</i></span><p>
             `
@@ -501,7 +545,8 @@
         ([entry]) => {
             if (entry.isIntersecting) {
             currentCardIndex = index;
-            console.log("Current card index:", index);
+            console.log("Current card index: ", index);
+            console.log("Current card: ", cards[currentCardIndex].label)
             }
         },
         { threshold: 0.5 }
@@ -518,7 +563,7 @@
     
     const handleSubmit = async () => {
         console.log("Submitted address:", address);
-        let location = await geocodeAddress(address);
+        location = await geocodeAddress(address);
         
         console.log("Full geocode result:", location);
 
@@ -762,7 +807,7 @@
                 'fill-color': [
                     'match',
                     ['get', 'grade'],
-                    'A', '#57f287',
+                    'A', '#30ab30',
                     'B', '#3498db',
                     'C', '#f1c40f',
                     'D', '#e74c3c',
@@ -864,6 +909,16 @@
         map.setPaintProperty('dri-layer', 'fill-opacity', 0.4);
     }
 
+    $: {
+      if (map && cards[currentCardIndex].label === "Redlining") {
+        if (map.getLayer('user-redline-highlight')) {
+          map.setLayoutProperty('user-redline-highlight', 'visibility', 'visible');
+        }
+      } else if (map && map.getLayer('user-redline-highlight')) {
+        map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
+      }
+    }
+
     // Hide both if not in those subsections
     $: if (
         map &&
@@ -883,17 +938,27 @@
     }
 
     $: if (map) {
-    const label = cards[currentCardIndex]?.label;
-    const sectionId = cards[currentCardIndex]?.sectionId;
+      const label = cards[currentCardIndex]?.label;
+      const sectionId = cards[currentCardIndex]?.sectionId;
 
-    if (label === 'What are DACs?' && sectionId === 'ejnyc') {
-        map.setPaintProperty('ejnyc-fill', 'fill-opacity', 1.0);
-        map.setPaintProperty('ejnyc-outline', 'line-opacity', 1.0);
-    } else {
-        map.setPaintProperty('ejnyc-fill', 'fill-opacity', ejnycOpacity);
-        map.setPaintProperty('ejnyc-outline', 'line-opacity', ejnycOpacity);
+      if (label === 'What are DACs?' && sectionId === 'ejnyc') {
+          map.setPaintProperty('ejnyc-fill', 'fill-opacity', 1.0);
+          map.setPaintProperty('ejnyc-outline', 'line-opacity', 1.0);
+      } else {
+          map.setPaintProperty('ejnyc-fill', 'fill-opacity', ejnycOpacity);
+          map.setPaintProperty('ejnyc-outline', 'line-opacity', ejnycOpacity);
+      }
     }
-}
+
+    function gradeColor(grade) {
+        switch (grade) {
+            case "A": return "#30ab30"; // Green
+            case "B": return "#3498db"; // Blue
+            case "C": return "#f1c40f"; // Yellow
+            case "D": return "#e74c3c"; // Red
+            default: return "black";
+        }
+    }
 
     
   </script>
