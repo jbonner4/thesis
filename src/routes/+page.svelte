@@ -25,6 +25,8 @@
     let location = null;
     let userRedlineGrade = null;
     let userRedlinedPolygon = null;
+    let renderedContent = "";
+
 
 
 
@@ -195,7 +197,7 @@
         {
           sectionId: "ejnyc",
           type: "subsection",
-          label: "Navigation Overview",
+          label: "Report/Navigation Overview",
           title: "What's Covered in The EJNYC Report?",
           content: `
             <p>The EJNYC report is organized into six key focus areas that reflect how environmental and health risks affect different communities across NYC. Each section explores a specific category, helping users understand environmental injustice throughout the city. These categories are:</p>
@@ -368,10 +370,10 @@
                 </ul>
             <p>Areas with high Black, immigrant, and low-income populations were systematically given D grades—marked in red—restricting their access to home loans and public investment.</p>
             <p>The legacy of redlining persists today, shaping patterns of wealth, housing conditions, and access to resources. Many of New York City's Environmental Justice Areas overlap with historically redlined neighborhoods.</p>
-            <p><strong>Your area received a {{userRedlineGrade}} rating. Adjust the EJNYC overlay to explore how these factors might overlap.</strong></p>
+            <p><strong>{{userRedlineInfo}}</strong></p>
 
             
-            <p><span style="font-size:12px;"><i>Redlining data provided by the <a href="https://dsl.richmond.edu/panorama/redlining/" target="_blank">Mapping Inequality Project</a> (University of Richmond, CC BY-NC 2.5 License).</i></span><p>
+            <p><span style="font-size:12px;"><i>Redlining data provided by <a href="https://dsl.richmond.edu/panorama/redlining/" target="_blank">Mapping Inequality</a> (University of Richmond, CC BY-NC 2.5 License).</i></span><p>
             `
         },
         {
@@ -551,7 +553,7 @@
             console.log("Current card: ", cards[currentCardIndex].label)
             }
         },
-        { threshold: 0.5 }
+        { threshold: 0.2 }
         );
 
         observer.observe(node);
@@ -630,6 +632,28 @@
 
         setTimeout(() => scrollToCard(resourcesIndex), 500);
     };
+
+    function renderCardContent(card) {
+      let content = card.content;
+      if (card.label === "Redlining" && content.includes('{{userRedlineInfo}}')) {
+        if (userRedlineGrade !== null) {
+          content = content.replace('{{userRedlineInfo}}', `
+            Your area received a 
+            <span style="color:${gradeColor(userRedlineGrade)}; font-size:22px;">
+              ${userRedlineGrade}
+            </span>
+            rating.
+          `);
+        } else {
+          content = content.replace('{{userRedlineInfo}}', `
+            <span style="color:gray; font-size:18px;">
+              Data not available for your area
+            </span>
+          `);
+        }
+      }
+      return content;
+    }
 
 
     function scrollToCard(index) {
@@ -859,6 +883,33 @@
         });
     });
 
+    $: {
+      if (cards && cards.length > 0 && currentCardIndex !== null) {
+        const baseContent = cards[currentCardIndex].content;
+        renderedContent = baseContent;
+
+        // Only attempt replacement if placeholder exists
+        if (baseContent.includes('{{userRedlineInfo}}')) {
+          if (cards[currentCardIndex].label === "Redlining" && userRedlineGrade !== null) {
+            renderedContent = renderedContent.replace('{{userRedlineInfo}}', `
+              Your area received a 
+              <span style="color:${gradeColor(userRedlineGrade)}; font-size:22px;">
+                ${userRedlineGrade}
+              </span>
+              rating.
+            `);
+          } else if (cards[currentCardIndex].label === "Redlining" && userRedlineGrade == null) {
+            renderedContent = renderedContent.replace('{{userRedlineInfo}}', `
+              <span style="color:gray; font-size:18px;">
+                Data is not available for your area. 
+              </span>
+            `);
+          }
+        }
+      }
+    }
+
+
     let showEJNYC = true;
 
     $: if (map) {
@@ -958,6 +1009,7 @@
             case "B": return "#3498db"; // Blue
             case "C": return "#f1c40f"; // Yellow
             case "D": return "#e74c3c"; // Red
+            case "undefined": return "black";
             default: return "black";
         }
     }
@@ -1254,7 +1306,7 @@
                 {/if}
               {:else}
                 <h2>{card.title}</h2>
-                <p>{@html card.content}</p>
+                <p>{@html renderCardContent(card)}</p>
                 <ul>
                     {#each card.subsections as sub}
                       <li>{sub}</li>
