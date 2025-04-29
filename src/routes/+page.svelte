@@ -379,13 +379,51 @@
         {
             sectionId: "resources",
             type: "subsection",
-            label: "Subsection 2",
-            title: "Subsection 2",
+            label: "Displacement Risk",
+            title: "Displacement Risk: Today's Housing Instability",
             content: `
-            Placeholder content for Subsection 2.
+            <p>Housing discrimination didn't end with redlining. Today, many neighborhoods across New York City face steep displacement pressures that threaten long-term residents. These pressures affect many of the same groups and communities that were target by redlining.</p>
+            <p>The <a href="https://a816-dohbesp.nyc.gov/IndicatorPublic/data-features/displacement-risk/" target="_blank">Displacement Risk Index (DRI)</a> highlights areas where people are most vulnerable to losing their homes, based on factors like rent burden, rising housing costs, poverty rates, and market pressure.</p>
+            <p>Here's how the DRI categories are mapped:</p>
+            <div style="display: flex; flex-direction: column; gap: 6px;"> 
+              <div>
+                <span style="display:inline-block; width: 20px; height: 20px; background-color:#fee5d9; margin-right: 8px; vertical-align: middle"></span>
+                Lowest Risk
+              </div> 
+              <div>
+                <span style="display:inline-block; width: 20px; height: 20px; background-color:#fcbba1; margin-right: 8px; vertical-align: middle"></span>
+                Lower Risk
+              </div> 
+              <div>
+                <span style="display:inline-block; width: 20px; height: 20px; background-color:#fc9272; margin-right: 8px; vertical-align: middle"></span>
+                Intermediate Risk
+              </div> 
+              <div>
+                <span style="display:inline-block; width: 20px; height: 20px; background-color:#fb6a4a; margin-right: 8px; vertical-align: middle"></span>
+                Higher Risk
+              </div> 
+              <div>
+                <span style="display:inline-block; width: 20px; height: 20px; background-color:#cb181d; margin-right: 8px; vertical-align: middle"></span>
+                Highest Risk
+              </div> 
+              <div>
+                <span style="display:inline-block; width: 20px; height: 20px; background-color:#000000; margin-right: 8px; vertical-align: middle"></span>
+                Park, Cemetery, etc.
+              </div>
+            </div>
+            
+            {{userDRIInfo}}
             `
         },
-
+        {
+            sectionId: "resources",
+            type: "subsection",
+            label: "Subsection 3",
+            title: "Subsection 3",
+            content: `
+            Hello World
+            `
+        },
         // Exposure to Polluted Air
         {
             sectionId: "air",
@@ -948,7 +986,7 @@
     }
 
     // Fade out redlining and fade in DRI in Subsection 2
-    $: if (map && cards[currentCardIndex]?.label === 'Subsection 2' && cards[currentCardIndex]?.sectionId === 'resources') {
+    $: if (map && cards[currentCardIndex]?.label === 'Displacement Risk' && cards[currentCardIndex]?.sectionId === 'resources') {
         map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
             duration: 4000,
             delay: 0
@@ -977,7 +1015,7 @@
         map &&
         !(
         (cards[currentCardIndex]?.label === 'Redlining' && cards[currentCardIndex]?.sectionId === 'resources') ||
-        (cards[currentCardIndex]?.label === 'Subsection 2' && cards[currentCardIndex]?.sectionId === 'resources')
+        (cards[currentCardIndex]?.label === 'Displacement Risk' && cards[currentCardIndex]?.sectionId === 'resources')
         )
     ) {
         map.setPaintProperty('dri-layer', 'fill-opacity-transition', {
@@ -1292,7 +1330,7 @@
                 }</div>
               {/if}
               {#if card.type === "search"}
-                <h2>Enter your address to see insights specific to your area throughout the project:</h2>
+                <h2 style="font-weight:400; font-size:20px;">Enter your address to see insights specific to your area throughout the project:</h2>
                 <form on:submit|preventDefault={handleSubmit} class="search-bar">
                   <input
                     type="text"
@@ -1360,7 +1398,7 @@
       right: 0;
       top: 0;
       bottom: 0;
-      width: 25%;
+      width: 30%;
       display: flex;
       flex-direction: column;
       padding: 1rem;
