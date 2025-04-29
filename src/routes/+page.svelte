@@ -24,7 +24,9 @@
     let ejnycPopup = null;
     let location = null;
     let userRedlineGrade = null;
+    let userDRI = null;
     let userRedlinedPolygon = null;
+    let userDRIPolygon = null;
     let renderedContent = "";
 
 
@@ -68,12 +70,19 @@
                 const feature = data.features[0];
                 location = { lat: feature.center[1], lng: feature.center[0] };
 
-                // Find user's redlining grade
+                // Find user's redlining and DRI grade
                 const userPoint = turf.point([location.lng, location.lat]);
                 for (const redlineFeature of redliningData.features) {
                     if (turf.booleanPointInPolygon(userPoint, redlineFeature)) {
                         userRedlineGrade = redlineFeature.properties.grade || redlineFeature.properties.HOLC_GRAD; // Adjust field name if needed
                         userRedlinedPolygon = redlineFeature;
+                        break;
+                    }
+                }for (const driFeature of driData.features) {
+                    if (turf.booleanPointInPolygon(userPoint, driFeature)) {
+                        userDRI = driFeature.properties.DisplacementRiskIndex  // Adjust field name if needed
+                        userDRIPolygon = driFeature;
+                        console.log("DRI: ", userDRI, riskColor(userDRI))
                         break;
                     }
                 }
@@ -96,6 +105,30 @@
                             },
                             paint: {
                                 'line-color': gradeColor(userRedlineGrade),
+                                'line-width': 3
+                            }
+                        });
+                    }
+                }
+
+                // Optional: Highlight the user's DRI polygon
+                if (userDRIPolygon && map) {
+                    if (map.getSource('user-dri-area')) {
+                        map.getSource('user-dri-area').setData(userDRIPolygon);
+                    } else {
+                        map.addSource('user-dri-area', {
+                            type: 'geojson',
+                            data: userDRIPolygon
+                        });
+                        map.addLayer({
+                            id: 'user-dri-highlight',
+                            type: 'line',
+                            source: 'user-dri-area',
+                            layout:{
+                                visibility:'none'
+                            },
+                            paint: {
+                                'line-color': riskColor(userDRI),
                                 'line-width': 3
                             }
                         });
@@ -412,7 +445,8 @@
               </div>
             </div>
             
-            {{userDRIInfo}}
+            <p><strong>{{userDRIInfo}}</strong></p>
+            <p>Mouse over neighborhoods on the map to see information on the features that determine each area's DRI </p>
             `
         },
         {
@@ -690,6 +724,22 @@
           `);
         }
       }
+      if (card.label === "Displacement Risk" && content.includes('{{userDRIInfo}}')) {
+        if (userRedlineGrade !== null) {
+          content = content.replace('{{userDRIInfo}}', `
+            Displacement risk in your area is  
+            <span style="color:${riskColor(userDRI)}; font-size:22px;">
+              ${userDRI}
+            </span>
+          `);
+        } else {
+          content = content.replace('{{userDRIInfo}}', `
+            <span style="color:gray; font-size:18px;">
+              Data not available for your area
+            </span>
+          `);
+        }
+      }
       return content;
     }
 
@@ -931,7 +981,7 @@
           if (cards[currentCardIndex].label === "Redlining" && userRedlineGrade !== null) {
             renderedContent = renderedContent.replace('{{userRedlineInfo}}', `
               Your area received a 
-              <span style="color:${gradeColor(userRedlineGrade)}; font-size:22px;">
+              <span style="color:${riskColor(userRedlineGrade)}; font-size:22px;">
                 ${userRedlineGrade}
               </span>
               rating.
@@ -944,11 +994,37 @@
             `);
           }
         }
+
+        // Only attempt replacement if placeholder exists
+        if (baseContent.includes('{{userDRInfo}}')) {
+          if (cards[currentCardIndex].label === "Displacement Risk" && userDRI !== null) {
+            renderedContent = renderedContent.replace('{{userDRIInfo}}', `
+              Displacement risk in your area is
+              <span style="color:${gradeColor(userDRI)}; font-size:22px;">
+                ${userDRI}
+              </span>
+            `);
+          } else if (cards[currentCardIndex].label === "Redlining" && userDRI == null) {
+            renderedContent = renderedContent.replace('{{userDRIInfo}}', `
+              <span style="color:gray; font-size:18px;">
+                Data is not available for your area. 
+              </span>
+            `);
+          }
+        }
       }
     }
 
 
     let showEJNYC = true;
+
+    $: if (map && userRedlineGrade && map.getLayer('user-redline-highlight')) {
+      map.setPaintProperty('user-redline-highlight', 'line-color', gradeColor(userRedlineGrade));
+    }
+
+    $: if (map && userDRI && map.getLayer('user-dri-highlight')) {
+      map.setPaintProperty('user-dri-highlight', 'line-color', riskColor(userDRI));
+    }
 
     $: if (map) {
       map.setLayoutProperty('ejnyc-fill', 'visibility', showEJNYC ? 'visible' : 'none');
@@ -970,45 +1046,53 @@
     }
 
     // Fade in redlining in Subsection 1
-    $: if (map && cards[currentCardIndex]?.label === 'Redlining' && cards[currentCardIndex]?.sectionId === 'resources') {
-        map.setLayoutProperty('redlining-fill', 'visibility', 'visible');
-        map.setLayoutProperty('redlining-outline', 'visibility', 'visible');
-        map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
-            duration: 1000,
-            delay: 0
-        });
-        map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
-            duration: 1000,
-            delay: 0
-        });
-        map.setPaintProperty('redlining-fill', 'fill-opacity', 0.4);
-        map.setPaintProperty('dri-layer', 'fill-opacity', 0, { duration: 1000 });
+    $: {
+      if (map && cards[currentCardIndex]?.label === 'Redlining' && cards[currentCardIndex]?.sectionId === 'resources') {
+          map.setLayoutProperty('redlining-fill', 'visibility', 'visible');
+          map.setLayoutProperty('redlining-outline', 'visibility', 'visible');
+          map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
+              duration: 1000,
+              delay: 0
+            });
+          if (map.getLayer('user-redline-highlight')) {
+            map.setLayoutProperty('user-redline-highlight', 'visibility', 'visible');
+          }
+          map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
+              duration: 1000,
+              delay: 0
+          });
+          map.setPaintProperty('redlining-fill', 'fill-opacity', 0.5);
+          map.setPaintProperty('dri-layer', 'fill-opacity', 0, { duration: 1000 });
+          map.setLayoutProperty('user-dri-highlight', 'visibility', 'none');
+      }
     }
 
     // Fade out redlining and fade in DRI in Subsection 2
     $: if (map && cards[currentCardIndex]?.label === 'Displacement Risk' && cards[currentCardIndex]?.sectionId === 'resources') {
         map.setPaintProperty('redlining-fill', 'fill-opacity-transition', {
-            duration: 4000,
+            duration: 2000,
             delay: 0
         });
         map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
+        map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
         map.setLayoutProperty('redlining-outline', 'visibility', 'visible');
         map.setPaintProperty('dri-layer', 'fill-opacity-transition', {
-            duration: 3000,
+            duration: 1000,
             delay: 0
         });
-        map.setPaintProperty('dri-layer', 'fill-opacity', 0.4);
+        map.setPaintProperty('dri-layer', 'fill-opacity', 0.5);
+        map.setLayoutProperty('user-dri-highlight', 'visibility', 'visible');
     }
 
-    $: {
-      if (map && cards[currentCardIndex].label === "Redlining") {
-        if (map.getLayer('user-redline-highlight')) {
-          map.setLayoutProperty('user-redline-highlight', 'visibility', 'visible');
-        }
-      } else if (map && map.getLayer('user-redline-highlight')) {
-        map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
-      }
-    }
+    // $: {
+    //   if (map && cards[currentCardIndex].label === "Redlining") {
+    //     if (map.getLayer('user-redline-highlight')) {
+    //         map.setLayoutProperty('user-redline-highlight', 'visibility', 'visible');
+    //       }
+    //   } else if (map && map.getLayer('user-redline-highlight')) {
+    //     map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
+    //   }
+    // }
 
     // Hide both if not in those subsections
     $: if (
@@ -1025,7 +1109,9 @@
         map.setLayoutProperty('redlining-fill', 'visibility', 'none');
         map.setLayoutProperty('redlining-outline', 'visibility', 'none');
         map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
+        map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
         map.setPaintProperty('dri-layer', 'fill-opacity', 0);
+        map.setLayoutProperty('user-dri-highlight', 'visibility', 'none');
     }
 
     $: if (map) {
@@ -1052,8 +1138,21 @@
         }
     }
 
+    function riskColor(DisplacementRiskIndex) {
+        switch (DisplacementRiskIndex) {
+            case "Lowest": return "#fee5d9";
+            case "Lower": return "#fcbba1";
+            case "Intermediate": return "#fc9272";
+            case "Higher": return "#fb6a4a";
+            case "Highest": return "#cb181d";
+            case "undefined": return "black";
+            default: return '#000000'
+        }
+    }
+
     
   </script>
+
 
 {#if stylesLoaded}
         <!-- The map fills the full screen -->
