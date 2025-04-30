@@ -414,6 +414,10 @@
             type: "subsection",
             label: "Displacement Risk",
             title: "Displacement Risk: Today's Housing Instability",
+            mapView: {
+              center: initialView.center, // NYC default view
+              zoom: initialView.zoom
+            },
             content: `
             <p>Housing discrimination didn't end with redlining. Today, many neighborhoods across New York City face steep displacement pressures that threaten long-term residents. These pressures affect many of the same groups and communities that were target by redlining.</p>
             <p>The <a href="https://a816-dohbesp.nyc.gov/IndicatorPublic/data-features/displacement-risk/" target="_blank">Displacement Risk Index (DRI)</a> highlights areas where people are most vulnerable to losing their homes, based on factors like rent burden, rising housing costs, poverty rates, and market pressure.</p>
@@ -446,7 +450,7 @@
             </div>
             
             <p><strong>{{userDRIInfo}}</strong></p>
-            <p>Mouse over neighborhoods on the map to see information on the features that determine each area's DRI </p>
+            <p>Mouse over neighborhoods on the map to see information on the features that determine each area's DRI. Click to pin the popup for a speficic neighborhood and compare this data to other layers.</p>
             `
         },
         {
@@ -762,7 +766,21 @@
     const searchIndex = getCardIndexByType("search")
     const introIndex = getCardIndexByTitle("What is EJNYC?")
     const resourcesIndex = getCardIndexByTitle("Access to Resources")
-  
+    
+
+    // Suppress noisy Mapbox WebGL warning
+    const originalConsoleError = console.error;
+
+    console.error = function (...args) {
+      if (
+        typeof args[0] === 'string' &&
+        args[0].includes('WebGL: INVALID_OPERATION: delete: object does not belong to this context')
+      ) {
+        return;
+      }
+      originalConsoleError.apply(console, args);
+    };
+
     onMount(async () => {
         // if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         //     theme = 'dark';
@@ -947,7 +965,7 @@
             });
 
             map.addLayer({
-                id: 'dri-layer',
+                id: 'dri-fill',
                 type: 'fill',
                 source: 'dri',
                 paint: {
@@ -965,9 +983,149 @@
                 }
             });
 
+            map.addLayer({
+                id: 'dri-outline',
+                type: 'line',
+                source: 'dri',
+                paint: {
+                'line-color': '#333',
+                'line-width': 1
+                }
+            });
+
+            let driHoverPopup = null;
+            let driPinnedPopup = null;
+
+            map.on('mousemove', 'dri-fill', (e) => {
+              if (cards[currentCardIndex]?.label !== "Displacement Risk") return;
+
+              if (driPinnedPopup) return; // don’t show hover popup if one is pinned
+
+              map.getCanvas().style.cursor = 'pointer';
+
+              const feature = e.features[0];
+              if (!feature) return;
+              const props = feature.properties;
+
+              const popupContent = `
+                <div style="
+                  font-size: 14px;
+                  line-height: 1.4;
+                  max-width: 100%;
+                ">
+                  <div style="font-size: 15px; font-weight: 600;">
+                    ${props.NTACode}: ${props.NTAName}, ${props.BoroName}
+                  </div>
+                  <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px;">
+                    <i>${props.DisplacementRiskIndex || "Unknown"}</i> displacement risk
+                  </div>
+
+                  <hr style="border: none; border-top: 1px solid #ccc; margin: 6px 0;">
+
+                  ${props.NotWhite !== undefined ? `
+                    <div style="margin-bottom: 6px;">
+                      ${props.NotWhite}% of households are non-white
+                    </div>` : ''}
+
+                  ${props.SevereRentBurden !== undefined && props.SevereRentBurdenVsCity ? `
+                    <div style="margin-bottom: 6px;">
+                      ${props.SevereRentBurdenVsCity} at ${props.SevereRentBurden}<sup style="font-size: 8px; vertical-align: top;">${props.SevereRentBurden_MOE ? `±${props.SevereRentBurden_MOE}` : ''}</sup>% of households.
+                    </div>` : ''}
+
+                  ${props.ChangeInRents !== undefined ? `
+                    <div>
+                      ${props.ChangeInRents}<sup style="font-size: 8px; vertical-align: top;">${props.ChangeInRents_MOE ? `±${props.ChangeInRents_MOE}` : ''}</sup>% rent increase from 2006-2010 to 2017-2021
+                    </div>` : ''}
+                </div>
+              `;
+
+              if (driHoverPopup) driHoverPopup.remove();
+
+              driHoverPopup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false,
+                interactive: false
+              })
+                .setLngLat(e.lngLat)
+                .setHTML(popupContent)
+                .addTo(map);
+            });
+
+            map.on('mouseleave', 'dri-fill', () => {
+              map.getCanvas().style.cursor = '';
+              if (driHoverPopup) {
+                driHoverPopup.remove();
+                driHoverPopup = null;
+              }
+            });
+
+            map.on('click', 'dri-fill', (e) => {
+              if (cards[currentCardIndex]?.label !== "Displacement Risk") return;
+
+              const feature = e.features[0];
+              if (!feature) return;
+              const props = feature.properties;
+
+              const popupContent = `
+                <div style="
+                  font-size: 14px;
+                  line-height: 1.4;
+                  max-width: 100%;
+                ">
+                  <div style="font-size: 15px; font-weight: 600;">
+                    ${props.NTACode}: ${props.NTAName}, ${props.BoroName}
+                  </div>
+                  <div style="font-size: 14px; font-weight: 500; margin-bottom: 6px;">
+                    <i>${props.DisplacementRiskIndex || "Unknown"}</i> displacement risk
+                  </div>
+
+                  <hr style="border: none; border-top: 1px solid #ccc; margin: 6px 0;">
+
+                  ${props.NotWhite !== undefined ? `
+                    <div style="margin-bottom: 8px;">
+                      ${props.NotWhite}% of households are non-white
+                    </div>` : ''}
+
+                  ${props.SevereRentBurden !== undefined && props.SevereRentBurdenVsCity ? `
+                    <div style="margin-bottom: 8px;">
+                      ${props.SevereRentBurdenVsCity} at ${props.SevereRentBurden}<sup style="font-size: 8px; vertical-align: top;">${props.SevereRentBurden_MOE ? `±${props.SevereRentBurden_MOE}` : ''}</sup>% of households.
+                    </div>` : ''}
+
+                  ${props.ChangeInRents !== undefined ? `
+                    <div>
+                      ${props.ChangeInRents}<sup style="font-size: 8px; vertical-align: top;">${props.ChangeInRents_MOE ? `±${props.ChangeInRents_MOE}` : ''}</sup>% rent increase from 2006-2010 to 2017-2021
+                    </div>` : ''}
+                </div>
+              `;
+
+              // Remove hover popup when pinning
+              if (driHoverPopup) {
+                driHoverPopup.remove();
+                driHoverPopup = null;
+              }
+
+              // Toggle pinned popup
+              if (driPinnedPopup) {
+                driPinnedPopup.remove();
+                driPinnedPopup = null;
+                return; // clicking again unpins
+              }
+
+              driPinnedPopup = new mapboxgl.Popup({
+                closeButton: true,
+                closeOnClick: true
+              })
+                .setLngLat(e.lngLat)
+                .setHTML(popupContent)
+                .addTo(map);
+            });
+
+
             // hide by default
             map.setLayoutProperty('redlining-fill', 'visibility', 'none');
+            // map.setLayoutProperty('dri-fill', 'visibility', 'none');
             map.setLayoutProperty('redlining-outline', 'visibility', 'none');
+            map.setLayoutProperty('dri-outline', 'visibility', 'none');
         });
     });
 
@@ -1062,8 +1220,9 @@
               delay: 0
           });
           map.setPaintProperty('redlining-fill', 'fill-opacity', 0.5);
-          map.setPaintProperty('dri-layer', 'fill-opacity', 0, { duration: 1000 });
+          map.setPaintProperty('dri-fill', 'fill-opacity', 0, { duration: 1000 });
           map.setLayoutProperty('user-dri-highlight', 'visibility', 'none');
+          map.setLayoutProperty('dri-outline', 'visibility', 'none');
       }
     }
 
@@ -1075,12 +1234,13 @@
         });
         map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
         map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
-        map.setLayoutProperty('redlining-outline', 'visibility', 'visible');
-        map.setPaintProperty('dri-layer', 'fill-opacity-transition', {
+        map.setLayoutProperty('redlining-outline', 'visibility', 'none');
+        map.setLayoutProperty('dri-outline', 'visibility', 'visible');
+        map.setPaintProperty('dri-fill', 'fill-opacity-transition', {
             duration: 1000,
             delay: 0
         });
-        map.setPaintProperty('dri-layer', 'fill-opacity', 0.5);
+        map.setPaintProperty('dri-fill', 'fill-opacity', 0.5);
         map.setLayoutProperty('user-dri-highlight', 'visibility', 'visible');
     }
 
@@ -1102,7 +1262,7 @@
         (cards[currentCardIndex]?.label === 'Displacement Risk' && cards[currentCardIndex]?.sectionId === 'resources')
         )
     ) {
-        map.setPaintProperty('dri-layer', 'fill-opacity-transition', {
+        map.setPaintProperty('dri-fill', 'fill-opacity-transition', {
             duration: 1000,
             delay: 0
         });
@@ -1110,7 +1270,8 @@
         map.setLayoutProperty('redlining-outline', 'visibility', 'none');
         map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
         map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
-        map.setPaintProperty('dri-layer', 'fill-opacity', 0);
+        map.setPaintProperty('dri-fill', 'fill-opacity', 0);
+        map.setLayoutProperty('dri-outline', 'visibility', 'none');
         map.setLayoutProperty('user-dri-highlight', 'visibility', 'none');
     }
 
@@ -1632,6 +1793,14 @@
       width: 32px;
       height: 32px;
       cursor: pointer;
+    }
+
+    :global(.mapboxgl-popup-content) {
+      background: rgba(255, 255, 255, .75);
+      padding: 8px 10px;
+      font-size: 14px;
+      line-height: 1.4;
+      width: 250px;
     }
 
     .navbar {
