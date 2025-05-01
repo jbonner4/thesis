@@ -7,6 +7,7 @@
     import redliningData from '/src/data/redlining_all_boroughs.json';
     import driData from '/src/data/nta_dri_merged.json';
     import dacData from '/src/data/ejnyc_areas_wgs84.json';
+    import parksData from '/src/data/parks_properties.json';
     import * as turf from '@turf/turf';
 
 
@@ -145,6 +146,91 @@
             console.error("Geocoding error:", err);
             return null;
         }
+    }
+
+    const handleSubmit = async () => {
+        console.log("Submitted address:", address);
+        location = await geocodeAddress(address);
+        
+        console.log("Full geocode result:", location);
+
+        if (!location) {
+            zipError = "Could not find that address.";
+            return;
+        }
+
+        let zipFeature = location.context?.find(c => c.id.startsWith("postcode"));
+        let zipCode = zipFeature?.text;
+
+        console.log("Extracted ZIP:", zipCode);
+
+        if (!nycZipCodes.has(zipCode)) {
+            console.warn(`Initial result (${location.place_name}) not in NYC, retrying...`);
+
+            // Try again, forcing New York
+            const forcedQuery = `${address}, New York`;
+            location = await geocodeAddress(forcedQuery);
+
+            // Recheck ZIP
+            zipFeature = location.context?.find(c => c.id.startsWith("postcode"));
+            zipCode = zipFeature?.text;
+
+            if (!nycZipCodes.has(zipCode)) {
+                zipError = "Please enter an address within the 5 boroughs.";
+                return;
+            }
+        } else {
+            zipError = ""; // clear any previous error
+        }
+
+        let [lng, lat] = location.center;
+
+        console.log("Final ZIP:", zipCode);
+        console.log("Used corrected location:", location.place_name);
+
+        userAddress = {
+             center: [lng, lat],
+             zoom: 13,
+             pitch: 0,
+             bearing: 0
+         };
+
+         console.log("User Coords:", userAddress.center)
+
+        if (location && map) {
+            // map.flyTo({
+            // center: [lng, lat],
+            // zoom: 13,
+            // essential: true
+            // });
+            if (userMarker) userMarker.remove(); // remove previous if any
+
+            userMarker = new mapboxgl.Marker()
+                .setLngLat([lng, lat])
+                .addTo(map);
+
+
+            console.log("Geocoded location:", location);
+        } else {
+            alert("Could not find that address.");
+        }
+
+        setTimeout(() => scrollToCard(resourcesIndex), 500);
+    };
+
+    $: if (
+      map &&
+      currentCardIndex !== null &&
+      cards[currentCardIndex]?.label === "Green Space"
+    ) {
+      if (userAddress?.center) {
+        map.flyTo({
+          center: userAddress.center,
+          zoom: 15,
+          speed: 0.8,
+          curve: 1.2
+        });
+      }
     }
 
 
@@ -451,16 +537,23 @@
             
             <p><strong>{{userDRIInfo}}</strong></p>
             <p>Mouse over neighborhoods on the map to see information on the features that determine each area's DRI. Click to pin the popup for a speficic neighborhood and compare this data to other layers.</p>
+            <p><span style="font-size:12px;"><i>Data provided by New York City Department of Housing Preservation and Development (HPD) and the Department of City Planning (DCP) through the <a href="https://equitableexplorer.planning.nyc.gov/map/drm/nta" target="_blank">Equitable Development Data Explorer</a></i></span></p>
             `
         },
         {
-            sectionId: "resources",
-            type: "subsection",
-            label: "Subsection 3",
-            title: "Subsection 3",
-            content: `
-            Hello World
-            `
+          sectionId: "resources",
+          type: "subsection",
+          label: "Green Space",
+          title: "Access to Parks and Green Space",
+          content: `
+            <p>Public parks, trees, and green spaces play a vital role in health, climate resilience, and quality of life. They reduce heat, absorb stormwater, clean the air, and provide safe places to rest and play. Yet access to them is not evenly distributed across New York City.</p>
+
+            <p>Neighborhoods with fewer parks often overlap with areas historically disinvested in — the same areas burdened by poor housing, air quality, and heat vulnerability. Green space isn't just about beauty — it's a basic form of environmental protection.</p>
+
+            <p>This map highlights all parks in green. If you've entered your location, the map will zoom in to show some of your nearest parks. Many New Yorkers live more than a 10-minute walk from any green space — explore how your area compares.</p>
+
+            <p><span style="font-size:12px;"><i>Data provided by NYC Parks Open Data Team through <a href="https://data.cityofnewyork.us/Recreation/Parks-Properties-Map/krz2-j7bn" target="_blank">NYC Open Data</a></i></span></p>
+          `
         },
         // Exposure to Polluted Air
         {
@@ -468,6 +561,10 @@
             type: "intro",
             label: "Exposure to Polluted Air",
             title: "Exposure to Polluted Air",
+            mapView:{
+              center: initialView.center,
+              zoom: initialView.zoom,
+            },
             content: `<i>This section is under construction ⚒️</i>`
         },
         // {
@@ -640,74 +737,6 @@
         }
         };
     }
-    
-    const handleSubmit = async () => {
-        console.log("Submitted address:", address);
-        location = await geocodeAddress(address);
-        
-        console.log("Full geocode result:", location);
-
-        if (!location) {
-            zipError = "Could not find that address.";
-            return;
-        }
-
-        let zipFeature = location.context?.find(c => c.id.startsWith("postcode"));
-        let zipCode = zipFeature?.text;
-
-        console.log("Extracted ZIP:", zipCode);
-
-        if (!nycZipCodes.has(zipCode)) {
-            console.warn(`Initial result (${location.place_name}) not in NYC, retrying...`);
-
-            // Try again, forcing New York
-            const forcedQuery = `${address}, New York`;
-            location = await geocodeAddress(forcedQuery);
-
-            // Recheck ZIP
-            zipFeature = location.context?.find(c => c.id.startsWith("postcode"));
-            zipCode = zipFeature?.text;
-
-            if (!nycZipCodes.has(zipCode)) {
-                zipError = "Please enter an address within the 5 boroughs.";
-                return;
-            }
-        } else {
-            zipError = ""; // clear any previous error
-        }
-
-        let [lng, lat] = location.center;
-
-        console.log("Final ZIP:", zipCode);
-        console.log("Used corrected location:", location.place_name);
-
-        userAddress = {
-             center: [lng, lat],
-             zoom: 13,
-             pitch: 0,
-             bearing: 0
-         };
-
-        if (location && map) {
-            // map.flyTo({
-            // center: [lng, lat],
-            // zoom: 13,
-            // essential: true
-            // });
-            if (userMarker) userMarker.remove(); // remove previous if any
-
-            userMarker = new mapboxgl.Marker()
-                .setLngLat([lng, lat])
-                .addTo(map);
-
-
-            console.log("Geocoded location:", location);
-        } else {
-            alert("Could not find that address.");
-        }
-
-        setTimeout(() => scrollToCard(resourcesIndex), 500);
-    };
 
     function renderCardContent(card) {
       let content = card.content;
@@ -1120,8 +1149,23 @@
                 .addTo(map);
             });
 
+            map.addSource('parks', {
+              type: 'geojson',
+              data: parksData// replace with actual path or object
+            });
 
+            map.addLayer({
+              id: 'parks-fill',
+              type: 'fill',
+              source: 'parks',
+              paint: {
+                'fill-color': '#69c36c',
+              },
+            });
+
+            
             // hide by default
+            map.setLayoutProperty('parks-fill', 'visibility', 'none');
             map.setLayoutProperty('redlining-fill', 'visibility', 'none');
             // map.setLayoutProperty('dri-fill', 'visibility', 'none');
             map.setLayoutProperty('redlining-outline', 'visibility', 'none');
@@ -1242,6 +1286,41 @@
         });
         map.setPaintProperty('dri-fill', 'fill-opacity', 0.5);
         map.setLayoutProperty('user-dri-highlight', 'visibility', 'visible');
+        map.setPaintProperty('parks-fill', 'fill-opacity', 0, { duration: 1000 });
+    }
+
+        // Fade in parks and fade out DRI in Green Space
+    $: if (map && cards[currentCardIndex]?.label === 'Green Space' && cards[currentCardIndex]?.sectionId === 'resources') {
+        console.log("Parks layer: ", map.getLayer('parks-fill')); 
+        map.setLayoutProperty('parks-fill', 'visibility', 'visible')
+        map.setPaintProperty('parks-fill', 'fill-opacity-transition', {
+            duration: 1000,
+            delay: 0
+        });
+        map.setPaintProperty('parks-fill', 'fill-opacity', .5);
+        // console.log("Set visibility to visible")
+        // console.log("Parks layer: ", map.getLayer('parks-fill')); 
+        // map.setPaintProperty('parks-fill', 'fill-opacity-transition', {
+        //     duration: 1000,
+        //     delay: 0
+        // });
+        map.setLayoutProperty('parks-fill', 'visibility', 'visible');
+        // map.setPaintProperty('ejnyc-fill', 'fill-opacity-transition', {
+        //     duration: 1000,
+        //     delay: 0
+        // });
+        ejnycOpacity = 0.05;
+        // map.setPaintProperty('ejnyc-fill', 'fill-opacity', 0.05);
+        map.setPaintProperty('redlining-fill', 'fill-opacity', 0);
+        map.setLayoutProperty('user-redline-highlight', 'visibility', 'none');
+        map.setLayoutProperty('redlining-outline', 'visibility', 'none');
+        map.setLayoutProperty('dri-outline', 'visibility', 'none');
+        map.setPaintProperty('dri-fill', 'fill-opacity-transition', {
+            duration: 1000,
+            delay: 0
+        });
+        map.setPaintProperty('dri-fill', 'fill-opacity', 0);
+        map.setLayoutProperty('user-dri-highlight', 'visibility', 'none');
     }
 
     // $: {
